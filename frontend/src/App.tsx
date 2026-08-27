@@ -164,7 +164,7 @@ export function App() {
       setActiveTab('analytics');
     } else if (path === 'reports') {
       setActiveTab('reports');
-    } else if (path === '' || path === 'landing') {
+    } else {
       setActiveTab('landing');
     }
   }, []);
