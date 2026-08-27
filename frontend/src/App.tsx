@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { VasuliNextLanding } from './components/VasuliNextLanding';
+import { OriginalVasuliLandingPage } from './components/OriginalVasuliLandingPage';
 import { ExecutiveHeader } from './components/ExecutiveHeader';
 import { LeftIngestionSidebar } from './components/LeftIngestionSidebar';
 import { ExecutiveDashboardView } from './components/ExecutiveDashboardView';
@@ -254,7 +254,7 @@ export function App() {
   const totalRiskAmount = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
 
   if (activeTab === 'landing') {
-    return <VasuliNextLanding onRunLiveBatch={() => setActiveTab('dashboard')} />;
+    return <OriginalVasuliLandingPage onRunLiveBatch={() => setActiveTab('dashboard')} />;
   }
 
   return (
