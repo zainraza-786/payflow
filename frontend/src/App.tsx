@@ -14,6 +14,7 @@ import { ExceptionsView } from './components/ExceptionsView';
 import { BaselineView } from './components/BaselineView';
 import { FinancialAnalyticsView } from './components/FinancialAnalyticsView';
 import { AiAssistantView } from './components/AiAssistantView';
+import { ReportsView } from './components/ReportsView';
 import { SingleTransactionDemoModal } from './components/SingleTransactionDemoModal';
 
 import type { Payment, AuditLog, ApprovalResult } from './types';
@@ -457,6 +458,13 @@ export function App() {
               payments={payments}
               pendingApprovals={approvals.filter((a) => a.approval_status === 'PENDING')}
               recoveredAmount={recoveredAmount}
+            />
+          )}
+
+          {activeTab === 'reports' && (
+            <ReportsView
+              payments={payments}
+              auditLogs={auditLogs}
             />
           )}
 

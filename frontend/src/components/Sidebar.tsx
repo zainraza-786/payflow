@@ -15,6 +15,7 @@ import {
   BarChart3,
   PieChart,
   Bot,
+  FileText,
 } from 'lucide-react';
 
 export type NavTab =
@@ -28,6 +29,7 @@ export type NavTab =
   | 'audit'
   | 'baseline'
   | 'assistant'
+  | 'reports'
   | 'settings';
 
 interface SidebarProps {
@@ -69,6 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'audit' as NavTab, label: 'Audit Trail', icon: History },
     { id: 'baseline' as NavTab, label: 'VS Baseline', icon: BarChart3 },
     { id: 'assistant' as NavTab, label: 'AI Assistant', icon: Bot },
+    { id: 'reports' as NavTab, label: 'Reports', icon: FileText },
     { id: 'settings' as NavTab, label: 'System Settings', icon: Settings },
   ];
 
