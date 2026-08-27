@@ -148,9 +148,22 @@ export function App() {
   const [singleDemoPayment, setSingleDemoPayment] = useState<Payment | null>(null);
   const [isBatchRunning, setIsBatchRunning] = useState(false);
 
-  // Poll backend health
+  // Poll backend health & sync path
   useEffect(() => {
     checkHealth().catch(() => {});
+
+    const path = window.location.pathname.replace(/^\//, '').toLowerCase();
+    if (path === 'dashboard' || path === 'overview') {
+      setActiveTab('dashboard');
+    } else if (path === 'transactions' || path === 'audit') {
+      setActiveTab('transactions');
+    } else if (path === 'assistant') {
+      setActiveTab('assistant');
+    } else if (path === 'analytics') {
+      setActiveTab('analytics');
+    } else if (path === 'reports') {
+      setActiveTab('reports');
+    }
   }, []);
 
   // Handler for running live demo batch
