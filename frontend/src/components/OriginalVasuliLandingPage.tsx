@@ -347,9 +347,9 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
           <img
             src="/illustrations/cta-growth.jpg"
             alt=""
-            className="absolute inset-0 h-full w-full object-cover opacity-35 blur-[1px] dark:grayscale"
+            className="absolute inset-0 h-full w-full object-cover opacity-35 blur-[1px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.2_0.05_262)] via-[oklch(0.25_0.09_262/0.9)] to-[oklch(0.3_0.1_262/0.75)] dark:from-[oklch(0.2_0_0)] dark:via-[oklch(0.25_0_0/0.9)] dark:to-[oklch(0.3_0_0/0.75)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.2_0.05_262)] via-[oklch(0.25_0.09_262/0.9)] to-[oklch(0.3_0.1_262/0.75)]" />
         </div>
         <ScrollReveal className="relative mx-auto max-w-2xl px-6 py-32 text-center">
           <h2 className="text-2xl font-semibold text-white md:text-3xl">
@@ -370,7 +370,7 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
         <img
           src="/illustrations/rocket-launch.gif"
           alt=""
-          className="pointer-events-none absolute bottom-0 left-8 hidden h-44 w-auto opacity-25 blur-[0.5px] dark:grayscale md:block"
+          className="pointer-events-none absolute bottom-0 left-8 hidden h-44 w-auto opacity-25 blur-[0.5px] md:block"
         />
       </section>
     </div>

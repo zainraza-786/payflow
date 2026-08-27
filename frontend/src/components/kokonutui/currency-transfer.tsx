@@ -1,17 +1,16 @@
 "use client";
 
 /**
- * @author: @dorianbaffier
- * @description: Currency Transfer
+ * @author: @kokonut-labs
+ * @description: Currency Transfer animation component
  * @version: 1.0.0
- * @date: 2025-06-26
+ * @date: 2025-11-02
  * @license: MIT
  * @website: https://kokonutui.com
  * @github: https://github.com/kokonut-labs/kokonutui
  */
 
 import {
-  ArrowDownIcon,
   ArrowUpDown,
   ArrowUpIcon,
   Check,
@@ -46,9 +45,8 @@ const draw = {
         type: "spring",
         duration: 1.5,
         bounce: 0.2,
-        ease: [0.22, 1, 0.36, 1],
+        fill: { delay: i * 0.2 + 0.5, duration: 0.5 },
       },
-      opacity: { delay: i * 0.2, duration: 0.3 },
     },
   }),
 };
@@ -57,43 +55,35 @@ export function Checkmark({
   size = 100,
   strokeWidth = 2,
   color = "currentColor",
-  className = "",
+  className,
 }: CheckmarkProps) {
   return (
     <motion.svg
-      animate="visible"
-      className={className}
-      height={size}
+      className={cn("w-25 h-25 stroke-emerald-500", className)}
       initial="hidden"
-      viewBox="0 0 100 100"
+      animate="visible"
       width={size}
+      height={size}
+      viewBox="0 0 100 100"
     >
-      <title>Animated Checkmark</title>
       <motion.circle
-        custom={0}
         cx="50"
         cy="50"
-        r="42"
+        r="40"
         stroke={color}
-        style={{
-          strokeWidth,
-          strokeLinecap: "round",
-          fill: "transparent",
-          filter: "drop-shadow(0 0 2px rgba(16, 185, 129, 0.2))",
-        }}
+        strokeWidth={strokeWidth}
+        custom={1}
         variants={draw as any}
+        className="fill-emerald-500/10"
       />
       <motion.path
-        custom={1}
-        d="M32 50L45 63L68 35"
+        d="M30 50L45 65L70 35"
+        fill="transparent"
         stroke={color}
-        style={{
-          strokeWidth: strokeWidth + 0.5,
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          fill: "transparent",
-          filter: "drop-shadow(0 0 1px rgba(16, 185, 129, 0.3))",
-        }}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        custom={2}
         variants={draw as any}
       />
     </motion.svg>
@@ -102,7 +92,7 @@ export function Checkmark({
 
 export default function CurrencyTransfer() {
   const [isCompleted, setIsCompleted] = useState(false);
-  const transactionId = "pay_9cEFf9F41D";
+  const transactionId = "pay_9cEFF9F41D";
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -114,7 +104,7 @@ export default function CurrencyTransfer() {
 
   return (
     <TooltipProvider>
-      <Card className="mx-auto flex h-[420px] w-full max-w-sm flex-col border border-zinc-200/60 bg-white p-6 shadow-[0_0_0_1px_rgba(0,0,0,0.03)] backdrop-blur-sm transition-all duration-500 hover:border-emerald-500/20 dark:border-zinc-800/60 dark:bg-zinc-900 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.03)] dark:hover:border-emerald-500/20">
+      <Card className="mx-auto flex h-[420px] w-full max-w-sm flex-col border border-zinc-200/80 bg-white p-6 shadow-xl backdrop-blur-sm transition-all duration-500 hover:border-emerald-500/20">
         <CardContent className="flex flex-1 flex-col justify-center space-y-4">
           <div className="flex h-[80px] items-center justify-center">
             <motion.div
@@ -131,7 +121,7 @@ export default function CurrencyTransfer() {
                   animate={{
                     opacity: [0, 1, 0.8],
                   }}
-                  className="absolute inset-0 rounded-full bg-emerald-500/10 blur-2xl dark:bg-emerald-500/5"
+                  className="absolute inset-0 rounded-full bg-emerald-500/10 blur-2xl"
                   initial={{ opacity: 0 }}
                   transition={{
                     duration: 1.5,
@@ -157,7 +147,7 @@ export default function CurrencyTransfer() {
                         ease: "easeInOut",
                       }}
                     >
-                      <div className="relative z-10 rounded-full border border-emerald-500 bg-white p-5 dark:bg-zinc-900">
+                      <div className="relative z-10 rounded-full border border-emerald-500/30 bg-white p-5 shadow-sm">
                         <Check
                           className="h-10 w-10 text-emerald-500"
                           strokeWidth={3.5}
@@ -204,7 +194,7 @@ export default function CurrencyTransfer() {
                             },
                           }}
                         />
-                        <div className="relative z-10 rounded-full bg-white p-5 shadow-[0_0_15px_rgba(16,185,129,0.1)] dark:bg-zinc-900">
+                        <div className="relative z-10 rounded-full bg-white p-5 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
                           <ArrowUpDown className="h-10 w-10 text-emerald-500" />
                         </div>
                       </div>
@@ -229,7 +219,7 @@ export default function CurrencyTransfer() {
                 {isCompleted ? (
                   <motion.h2
                     animate={{ opacity: 1, y: 0 }}
-                    className="font-semibold text-lg text-zinc-900 uppercase tracking-tighter dark:text-zinc-100"
+                    className="font-semibold text-lg text-zinc-900 uppercase tracking-tight"
                     exit={{ opacity: 0, y: -20 }}
                     initial={{ opacity: 0, y: 20 }}
                     key="completed-title"
@@ -243,7 +233,7 @@ export default function CurrencyTransfer() {
                 ) : (
                   <motion.h2
                     animate={{ opacity: 1, y: 0 }}
-                    className="font-semibold text-lg text-zinc-900 uppercase tracking-tighter dark:text-zinc-100"
+                    className="font-semibold text-lg text-zinc-900 uppercase tracking-tight"
                     exit={{ opacity: 0, y: -20 }}
                     initial={{ opacity: 0, y: 20 }}
                     key="progress-title"
@@ -260,7 +250,7 @@ export default function CurrencyTransfer() {
                 {isCompleted ? (
                   <motion.div
                     animate={{ opacity: 1, y: 0 }}
-                    className="font-medium text-emerald-600 text-xs dark:text-emerald-400"
+                    className="font-medium text-emerald-600 text-xs"
                     exit={{ opacity: 0, y: -10 }}
                     initial={{ opacity: 0, y: 10 }}
                     key="completed-id"
@@ -274,7 +264,7 @@ export default function CurrencyTransfer() {
                 ) : (
                   <motion.div
                     animate={{ opacity: 1, y: 0 }}
-                    className="font-medium text-emerald-600 text-xs dark:text-emerald-400"
+                    className="font-medium text-emerald-600 text-xs"
                     exit={{ opacity: 0, y: -10 }}
                     initial={{ opacity: 0, y: 10 }}
                     key="progress-status"
@@ -314,7 +304,7 @@ export default function CurrencyTransfer() {
                         scale: 1,
                       }}
                       className={cn(
-                        "w-full rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 backdrop-blur-md transition-all duration-300 dark:border-zinc-700/50 dark:bg-zinc-800/50",
+                        "w-full rounded-xl border border-zinc-200/80 bg-zinc-50/80 p-2.5 backdrop-blur-md transition-all duration-300",
                         isCompleted
                           ? "rounded-b-none border-b-0"
                           : "hover:border-emerald-500/30"
@@ -327,14 +317,14 @@ export default function CurrencyTransfer() {
                       <div className="w-full space-y-1">
                         <motion.span
                           animate={{ opacity: 1 }}
-                          className="flex items-center gap-1.5 font-medium text-xs text-zinc-500 dark:text-zinc-400"
+                          className="flex items-center gap-1.5 font-medium text-xs text-zinc-500"
                           initial={{ opacity: 1 }}
                           transition={{
                             duration: 0.3,
                             ease: [0.22, 1, 0.36, 1],
                           }}
                         >
-                          <ArrowUpIcon className="h-3 w-3" />
+                          <ArrowUpIcon className="h-3 w-3 text-slate-400" />
                           From
                         </motion.span>
                         <div className="flex flex-col gap-1.5">
@@ -348,61 +338,23 @@ export default function CurrencyTransfer() {
                             }}
                           >
                             <motion.span
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-300 bg-white font-medium text-sm text-zinc-900 shadow-lg transition-colors duration-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                              animate={{ opacity: 1 }}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-200/60 bg-white font-medium text-xs text-zinc-700 shadow-2xs"
+                              initial={{ opacity: 1 }}
                               transition={{
-                                type: "spring",
-                                stiffness: 400,
-                                damping: 10,
-                              }}
-                              whileHover={{
-                                scale: 1.05,
+                                duration: 0.3,
+                                ease: [0.22, 1, 0.36, 1],
                               }}
                             >
                               ₹
                             </motion.span>
-                            <div className="flex flex-col items-start">
-                              <AnimatePresence mode="wait">
-                                <motion.span
-                                  animate={{
-                                    opacity: isCompleted ? 1 : 0.5,
-                                  }}
-                                  className={cn(
-                                    "font-medium text-zinc-900 tracking-tight dark:text-zinc-100"
-                                  )}
-                                  exit={{
-                                    opacity: isCompleted ? 1 : 0.5,
-                                  }}
-                                  initial={{
-                                    opacity: isCompleted ? 1 : 0.5,
-                                  }}
-                                  key={
-                                    isCompleted
-                                      ? "completed-amount"
-                                      : "processing-amount"
-                                  }
-                                  transition={{
-                                    duration: 0.3,
-                                    ease: [0.22, 1, 0.36, 1],
-                                  }}
-                                >
-                                  ₹49,800 failed
-                                </motion.span>
-                              </AnimatePresence>
-                              <motion.span
-                                animate={{
-                                  opacity: 1,
-                                }}
-                                className="text-xs text-zinc-500 dark:text-zinc-400"
-                                initial={{
-                                  opacity: 1,
-                                }}
-                                transition={{
-                                  duration: 0.3,
-                                  ease: [0.22, 1, 0.36, 1],
-                                }}
-                              >
+                            <div className="flex flex-col items-start text-left">
+                              <span className="font-semibold text-xs text-zinc-900">
+                                ₹49,800 failed
+                              </span>
+                              <span className="text-[11px] text-zinc-500">
                                 bank_server_down
-                              </motion.span>
+                              </span>
                             </div>
                           </motion.div>
                         </div>
@@ -411,13 +363,13 @@ export default function CurrencyTransfer() {
 
                     <motion.div
                       animate={{
-                        y: 0,
+                        y: isCompleted ? 0 : 0,
                         scale: 1,
                       }}
                       className={cn(
-                        "w-full rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 backdrop-blur-md transition-all duration-300 dark:border-zinc-700/50 dark:bg-zinc-800/50",
+                        "w-full rounded-xl border border-zinc-200/80 bg-zinc-50/80 p-2.5 backdrop-blur-md transition-all duration-300",
                         isCompleted
-                          ? "rounded-t-none border-t-0"
+                          ? "rounded-t-none"
                           : "hover:border-emerald-500/30"
                       )}
                       transition={{
@@ -428,14 +380,14 @@ export default function CurrencyTransfer() {
                       <div className="w-full space-y-1">
                         <motion.span
                           animate={{ opacity: 1 }}
-                          className="flex items-center gap-1.5 font-medium text-xs text-zinc-500 dark:text-zinc-400"
+                          className="flex items-center gap-1.5 font-medium text-xs text-zinc-500"
                           initial={{ opacity: 1 }}
                           transition={{
                             duration: 0.3,
                             ease: [0.22, 1, 0.36, 1],
                           }}
                         >
-                          <ArrowDownIcon className="h-3 w-3" />
+                          <ArrowUpIcon className="h-3 w-3 rotate-180 text-slate-400" />
                           To
                         </motion.span>
                         <div className="flex flex-col gap-1.5">
@@ -449,61 +401,23 @@ export default function CurrencyTransfer() {
                             }}
                           >
                             <motion.span
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-300 bg-white font-medium text-sm text-zinc-900 shadow-lg transition-colors duration-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                              animate={{ opacity: 1 }}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-50 font-medium text-xs text-emerald-600 shadow-2xs"
+                              initial={{ opacity: 1 }}
                               transition={{
-                                type: "spring",
-                                stiffness: 400,
-                                damping: 10,
-                              }}
-                              whileHover={{
-                                scale: 1.05,
+                                duration: 0.3,
+                                ease: [0.22, 1, 0.36, 1],
                               }}
                             >
                               ✓
                             </motion.span>
-                            <div className="flex flex-col items-start">
-                              <AnimatePresence mode="wait">
-                                <motion.span
-                                  animate={{
-                                    opacity: isCompleted ? 1 : 0.5,
-                                  }}
-                                  className={cn(
-                                    "font-medium text-zinc-900 tracking-tight dark:text-zinc-100"
-                                  )}
-                                  exit={{
-                                    opacity: isCompleted ? 1 : 0.5,
-                                  }}
-                                  initial={{
-                                    opacity: isCompleted ? 1 : 0.5,
-                                  }}
-                                  key={
-                                    isCompleted
-                                      ? "completed-amount-eur"
-                                      : "processing-amount-eur"
-                                  }
-                                  transition={{
-                                    duration: 0.3,
-                                    ease: [0.22, 1, 0.36, 1],
-                                  }}
-                                >
-                                  ₹49,800 recovered
-                                </motion.span>
-                              </AnimatePresence>
-                              <motion.span
-                                animate={{
-                                  opacity: 1,
-                                }}
-                                className="text-xs text-zinc-500 dark:text-zinc-400"
-                                initial={{
-                                  opacity: 1,
-                                }}
-                                transition={{
-                                  duration: 0.3,
-                                  ease: [0.22, 1, 0.36, 1],
-                                }}
-                              >
+                            <div className="flex flex-col items-start text-left">
+                              <span className="font-semibold text-xs text-zinc-900">
+                                ₹49,800 recovered
+                              </span>
+                              <span className="text-[11px] text-zinc-500">
                                 Live — Razorpay test mode
-                              </motion.span>
+                              </span>
                             </div>
                           </motion.div>
                         </div>
@@ -513,54 +427,22 @@ export default function CurrencyTransfer() {
                 </motion.div>
               </div>
               <motion.div
-                animate={{ opacity: 1 }}
-                className="mt-2 flex items-center justify-center gap-2 text-xs text-zinc-500 dark:text-zinc-400"
-                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 flex items-center justify-center gap-1 text-[11px] text-zinc-500"
+                initial={{ opacity: 0, y: 5 }}
                 transition={{
                   delay: 0.5,
-                  duration: 0.6,
+                  duration: 0.4,
                   ease: [0.22, 1, 0.36, 1],
                 }}
               >
-                <AnimatePresence mode="wait">
-                  {isCompleted ? (
-                    <motion.span
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      initial={{ opacity: 0, y: 10 }}
-                      key="completed-rate"
-                      transition={{
-                        duration: 0.4,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                    >
-                      Recovered on retry #2 — root cause: bank_server_down
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      initial={{ opacity: 0, y: 10 }}
-                      key="calculating-rate"
-                      transition={{
-                        duration: 0.4,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                    >
-                      Diagnosing root cause...
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                <span>Recovered on retry #2 — root cause: bank_server_down</span>
                 <Tooltip>
-                  <TooltipTrigger>
-                    <InfoIcon className="h-3 w-3 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300" />
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="h-3 w-3 cursor-pointer text-zinc-400 hover:text-zinc-600" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="text-xs">
-                      {isCompleted
-                        ? "Guardrail checks passed, retry executed"
-                        : "Please wait..."}
-                    </p>
+                    Automated smart retry triggered via Razorpay test mode API
                   </TooltipContent>
                 </Tooltip>
               </motion.div>
