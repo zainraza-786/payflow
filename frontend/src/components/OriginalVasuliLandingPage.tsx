@@ -101,16 +101,16 @@ interface OriginalVasuliLandingPageProps {
 
 export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps> = ({ onRunLiveBatch }) => {
   return (
-    <div className="relative flex-1 min-h-screen bg-slate-950 text-slate-100 font-sans">
+    <div className="relative flex-1 min-h-screen bg-slate-50 text-slate-900 font-sans">
       <ScrollFadeBackground />
 
       <div className="pointer-events-none fixed left-8 top-1/2 z-40 hidden -translate-y-1/2 min-[1620px]:block">
         <div className="pointer-events-auto">
           <LineSidebar
             items={SECTIONS}
-            accentColor="var(--primary, #2563eb)"
-            textColor="var(--foreground, #f8fafc)"
-            markerColor="var(--muted-foreground, #94a3b8)"
+            accentColor="#2563eb"
+            textColor="#0f172a"
+            markerColor="#64748b"
             showIndex
             showMarker
             proximityRadius={90}
@@ -138,9 +138,9 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 py-1 pl-1.5 pr-3 text-xs font-medium uppercase tracking-wide text-blue-400"
+              className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-50/80 py-1 pl-1.5 pr-3 text-xs font-medium uppercase tracking-wide text-blue-600"
             >
-              <span className="flex size-5 items-center justify-center overflow-hidden rounded-full bg-white">
+              <span className="flex size-5 items-center justify-center overflow-hidden rounded-full bg-white shadow-xs">
                 <img
                   src="/illustrations/razorpay-logo.jpg"
                   alt="Razorpay"
@@ -152,12 +152,12 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
               Razorpay AI Buildathon — Track 03
             </motion.div>
 
-            <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight md:text-5xl text-white">
+            <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight md:text-5xl text-slate-900">
               <SplitText text="Vasuli — the AI agent that" />
               <br />
               <SplitText
                 text="gets your money back."
-                wordClassName="text-blue-500"
+                wordClassName="text-blue-600"
                 delay={0.35}
               />
             </h1>
@@ -166,7 +166,7 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.9 }}
-              className="mt-5 max-w-lg text-base leading-relaxed text-slate-300 md:text-lg"
+              className="mt-5 max-w-lg text-base leading-relaxed text-slate-600 md:text-lg"
             >
               It watches failed payments, abandoned checkouts, failed mandates,
               and overdue invoices — diagnoses why each one is losing money,
@@ -198,7 +198,7 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 1.2 }}
-              className="mt-6 max-w-md text-xs text-slate-400"
+              className="mt-6 max-w-md text-xs text-slate-500"
             >
               The LLM never touches money directly — a deterministic guardrail
               engine and recovery executors are the only things allowed to act.
@@ -245,10 +245,10 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
       {/* Architecture — sticky stack */}
       <section id="how-it-works" className="relative mx-auto max-w-4xl px-6 pb-20 pt-20 md:pt-28">
         <ScrollReveal className="mb-4 text-center" y={-56}>
-          <p className="text-xs font-medium uppercase tracking-wide text-blue-500">
+          <p className="text-xs font-medium uppercase tracking-wide text-blue-600">
             How it works
           </p>
-          <h2 className="mt-2 text-2xl font-semibold md:text-3xl text-white">
+          <h2 className="mt-2 text-2xl font-semibold md:text-3xl text-slate-900">
             Four layers, one rule: the LLM proposes, code decides.
           </h2>
         </ScrollReveal>
@@ -259,7 +259,7 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
             return (
               <Card
                 key={layer.title}
-                className="overflow-hidden border-slate-800 bg-slate-900/90 shadow-[0_30px_60px_-25px_rgb(0,0,0,0.5)] !py-0"
+                className="overflow-hidden border-slate-200 bg-white/95 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.12)] !py-0"
               >
                 <CardContent
                   className={
@@ -276,22 +276,22 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
                     }
                   >
                     <div className="mb-4 flex items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-lg bg-blue-500/10">
-                        <Icon className="size-5 text-blue-400" />
+                      <div className="flex size-10 items-center justify-center rounded-lg bg-blue-50">
+                        <Icon className="size-5 text-blue-600" />
                       </div>
-                      <span className="text-xs font-mono text-slate-400">{layer.tag}</span>
+                      <span className="text-xs font-mono text-slate-500">{layer.tag}</span>
                     </div>
-                    <h3 className="text-xl font-semibold md:text-2xl text-white">{layer.title}</h3>
-                    <p className="mt-3 text-sm leading-relaxed text-slate-300 md:text-base">
+                    <h3 className="text-xl font-semibold md:text-2xl text-slate-900">{layer.title}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
                       {layer.body}
                     </p>
                   </div>
                   {layer.image && (
-                    <div className="relative min-h-[200px] overflow-hidden bg-slate-950 md:col-span-2">
+                    <div className="relative min-h-[200px] overflow-hidden bg-slate-100 md:col-span-2">
                       <img
                         src={layer.image}
                         alt=""
-                        className="absolute inset-0 h-full w-full object-cover opacity-80 blur-[1px]"
+                        className="absolute inset-0 h-full w-full object-cover opacity-85 blur-[0.5px]"
                       />
                     </div>
                   )}
@@ -305,13 +305,13 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
       {/* Recovery actions — fan-out card stack */}
       <section id="actions" className="relative mx-auto max-w-6xl px-6 pb-28">
         <ScrollReveal className="mb-10 text-center">
-          <p className="text-xs font-medium uppercase tracking-wide text-blue-500">
+          <p className="text-xs font-medium uppercase tracking-wide text-blue-600">
             The allowed action set
           </p>
-          <h2 className="mt-2 text-2xl font-semibold md:text-3xl text-white">
+          <h2 className="mt-2 text-2xl font-semibold md:text-3xl text-slate-900">
             A fixed menu — never a freeform action.
           </h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
+          <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
             Hover a panel to bring it forward.
           </p>
         </ScrollReveal>
@@ -322,8 +322,8 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
               defaultIndex={0}
               expandRatio={0.48}
               trigger="hover"
-              accentColor="#3b82f6"
-              overlayColor="#020617"
+              accentColor="#2563eb"
+              overlayColor="#0f172a"
               textColor="#ffffff"
               grayscale
               showLabels
@@ -347,15 +347,15 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
           <img
             src="/illustrations/cta-growth.jpg"
             alt=""
-            className="absolute inset-0 h-full w-full object-cover opacity-35 blur-[1px] grayscale"
+            className="absolute inset-0 h-full w-full object-cover opacity-35 blur-[1px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/90 to-slate-900/75" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/90 to-blue-950/80" />
         </div>
         <ScrollReveal className="relative mx-auto max-w-2xl px-6 py-32 text-center">
           <h2 className="text-2xl font-semibold text-white md:text-3xl">
             See it diagnose, decide, and recover — live.
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-slate-300">
+          <p className="mx-auto mt-3 max-w-md text-sm text-white/90">
             One click runs a real batch through the full pipeline: guardrails,
             the diagnosis agent, and the executors.
           </p>
@@ -370,7 +370,7 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
         <img
           src="/illustrations/rocket-launch.gif"
           alt=""
-          className="pointer-events-none absolute bottom-0 left-8 hidden h-44 w-auto opacity-25 blur-[0.5px] grayscale md:block"
+          className="pointer-events-none absolute bottom-0 left-8 hidden h-44 w-auto opacity-30 blur-[0.5px] md:block"
         />
       </section>
     </div>

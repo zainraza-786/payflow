@@ -3,14 +3,14 @@
 import { cn } from "@/lib/utils";
 import Grainient from "@/components/reactbits/Grainient";
 
-const DARK_PALETTE = { color1: "#b1bbbd", color2: "#111112", color3: "#000000", timeSpeed: 0.75 };
+const LIGHT_PALETTE = { color1: "#b1bbbd", color2: "#5d8ad1", color3: "#4c86e4", timeSpeed: 1.15 };
 
 /**
  * Ambient site-wide backdrop — the real react-bits Grainient (WebGL/ogl
- * shader: warped noise + film grain).
+ * shader: warped noise + film grain) with original light blue palette.
  */
 export function GrainientBackground({ className }: { className?: string }) {
-  const palette = DARK_PALETTE;
+  const palette = LIGHT_PALETTE;
 
   return (
     <div className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}>
