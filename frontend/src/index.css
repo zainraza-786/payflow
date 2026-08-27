@@ -2,8 +2,26 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased font-sans selection:bg-slate-900 selection:text-white;
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-slate-900 selection:text-white;
+    font-family: 'Geist', sans-serif;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+}
+
+.font-headline {
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.font-body {
+  font-family: 'Geist', sans-serif;
+}
+
+.font-mono-nums {
+  font-family: 'Geist Mono', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Custom subtle scrollbar */
