@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LandingPage } from './components/LandingPage';
 import { ExecutiveHeader } from './components/ExecutiveHeader';
 import { LeftIngestionSidebar } from './components/LeftIngestionSidebar';
 import { ExecutiveDashboardView } from './components/ExecutiveDashboardView';
@@ -136,7 +137,7 @@ const INITIAL_DEMO_AUDITS: AuditLog[] = [
 ];
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [activeTab, setActiveTab] = useState<string>('landing');
 
   // Core Data States
   const [payments, setPayments] = useState<Payment[]>(INITIAL_DEMO_PAYMENTS);
@@ -163,6 +164,8 @@ export function App() {
       setActiveTab('analytics');
     } else if (path === 'reports') {
       setActiveTab('reports');
+    } else if (path === '' || path === 'landing') {
+      setActiveTab('landing');
     }
   }, []);
 
@@ -250,10 +253,18 @@ export function App() {
   const recoveredAmount = payments.filter((p) => p.status === 'captured').reduce((acc, p) => acc + (p.amount || 0), 0);
   const totalRiskAmount = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
 
+  if (activeTab === 'landing') {
+    return <LandingPage onEnterApp={() => setActiveTab('dashboard')} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Top Header & Navigation Bar */}
-      <ExecutiveHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ExecutiveHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onGoToLanding={() => setActiveTab('landing')}
+      />
 
       {/* Main Body Layout: Left Sidebar + Right Content View */}
       <div className="flex flex-col lg:flex-row gap-6 max-w-7xl w-full mx-auto">

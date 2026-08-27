@@ -1,12 +1,13 @@
 import React from 'react';
-import { Zap } from 'lucide-react';
+import { Zap, Home } from 'lucide-react';
 
 interface ExecutiveHeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onGoToLanding?: () => void;
 }
 
-export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({ activeTab, setActiveTab }) => {
+export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({ activeTab, setActiveTab, onGoToLanding }) => {
   const navTabs = [
     { id: 'dashboard', label: 'Executive Dashboard', icon: '📊' },
     { id: 'transactions', label: 'Transaction Audit', icon: '📋' },
@@ -16,14 +17,18 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({ activeTab, set
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
       {/* Dark Navy Executive Top Banner */}
       <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-md">
+            <button
+              onClick={onGoToLanding}
+              className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-500 flex items-center justify-center text-white font-bold shadow-md transition-all cursor-pointer"
+              title="Return to Landing Page"
+            >
               <Zap className="w-5 h-5 fill-white" />
-            </div>
+            </button>
             <h1 className="text-2xl font-extrabold tracking-tight">PayFlow AI</h1>
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30">
               Track: Autonomous Payment Recovery
@@ -34,10 +39,21 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({ activeTab, set
           </p>
         </div>
 
-        <div className="flex flex-col items-end gap-1">
-          <div className="px-3.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-mono font-medium flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Active Dataset: Demo Mode (Synthetic Txns)</span>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center space-x-2">
+            {onGoToLanding && (
+              <button
+                onClick={onGoToLanding}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors"
+              >
+                <Home className="w-3.5 h-3.5 text-blue-400" />
+                <span>Landing Page</span>
+              </button>
+            )}
+            <div className="px-3.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-mono font-medium flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Active Dataset: Demo Mode</span>
+            </div>
           </div>
           <span className="text-[10px] text-amber-400 font-mono font-semibold">
             RAZORPAY TEST MODE ONLY
