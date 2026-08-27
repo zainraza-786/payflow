@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LandingPage } from './components/LandingPage';
+import { OriginalVasuliLanding } from './components/OriginalVasuliLanding';
 import { ExecutiveHeader } from './components/ExecutiveHeader';
 import { LeftIngestionSidebar } from './components/LeftIngestionSidebar';
 import { ExecutiveDashboardView } from './components/ExecutiveDashboardView';
@@ -254,7 +254,7 @@ export function App() {
   const totalRiskAmount = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
 
   if (activeTab === 'landing') {
-    return <LandingPage onEnterApp={() => setActiveTab('dashboard')} />;
+    return <OriginalVasuliLanding onRunLiveBatch={() => setActiveTab('dashboard')} />;
   }
 
   return (
