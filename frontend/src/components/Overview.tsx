@@ -3,17 +3,18 @@ import {
   AlertTriangle,
   ShieldCheck,
   TrendingUp,
-  CreditCard,
   ArrowUpRight,
   Zap,
   Activity,
+  AlertOctagon,
+  Lock,
 } from 'lucide-react';
 import type { Payment, AuditLog, ApprovalResult } from '../types';
 import type { NavTab } from './Sidebar';
 
 interface OverviewProps {
   payments: Payment[];
-  auditLogs: AuditLog[];
+  auditLogs?: AuditLog[];
   pendingApprovals: ApprovalResult[];
   onSelectPayment: (payment: Payment) => void;
   onNavigate: (tab: NavTab) => void;
@@ -23,15 +24,14 @@ interface OverviewProps {
 
 export const Overview: React.FC<OverviewProps> = ({
   payments,
-  auditLogs,
   pendingApprovals,
+  onSelectPayment,
   onNavigate,
   onRunDemoBatch,
   isBatchRunning,
 }) => {
   // Compute metrics truthfully from state data
   const totalFailuresCount = payments.length;
-  const totalFailuresAmount = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
 
   const atRiskPayments = payments.filter((p) => p.status === 'failed');
   const atRiskAmount = atRiskPayments.reduce((acc, p) => acc + (p.amount || 0), 0);
@@ -56,24 +56,37 @@ export const Overview: React.FC<OverviewProps> = ({
   ).length;
   const bankFailureCount = Math.max(0, totalFailuresCount - (insufficientFundsCount + timeoutCount + limitCount));
 
+  // Synthetic Customer Names for Demo Display
+  const getCustomerName = (id: number) => {
+    const names = ['Rohan Mehta', 'Sneha Kulkarni', 'Acme Demo Pvt Ltd', 'Demo Customer', 'Priya Sharma', 'Vikram Patel'];
+    return names[id % names.length];
+  };
+
   return (
     <div className="space-y-6">
+      {/* DEMO MODE Banner */}
+      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center space-x-2.5">
+          <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-600 text-white uppercase tracking-wider">
+            DEMO MODE — SYNTHETIC DATA
+          </span>
+          <p className="text-amber-900 font-medium">
+            Demonstration data only. No real customer payments or real-money transactions are being processed.
+          </p>
+        </div>
+        <span className="text-[10px] font-mono text-amber-800 font-semibold shrink-0">
+          Razorpay Test Mode Active
+        </span>
+      </div>
+
       {/* Top Banner / Control Center Header */}
-      <div className="p-5 rounded-xl bg-white border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
+      <div className="p-5 rounded-xl bg-white border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
         <div>
-          <div className="flex items-center space-x-2.5">
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-slate-900 text-white uppercase tracking-wider">
-              PAYFLOW RECOVERY CONTROL CENTER
-            </span>
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-              DEMO MODE — SYNTHETIC DATA
-            </span>
-          </div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight mt-1.5">
-            Autonomous Payment Recovery & Guardrail Console
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            PAYFLOW RECOVERY COMMAND CENTER
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Deterministic failure diagnosis, strategy selection, fail-closed guardrails, and revenue attribution.
+          <p className="text-xs text-slate-500 mt-1">
+            AI-powered payment recovery under deterministic guardrails.
           </p>
         </div>
 
@@ -83,52 +96,86 @@ export const Overview: React.FC<OverviewProps> = ({
           className="flex items-center space-x-2 px-4 py-2.5 rounded bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 shrink-0"
         >
           <Zap className={`w-4 h-4 fill-white ${isBatchRunning ? 'animate-spin' : ''}`} />
-          <span>{isBatchRunning ? 'Running Demo Recovery Batch...' : '⚡ RUN DEMO RECOVERY BATCH'}</span>
+          <span>{isBatchRunning ? 'Processing Demo Batch...' : '⚡ RUN DEMO RECOVERY BATCH'}</span>
         </button>
       </div>
 
-      {/* KPI Cards Row (High-Hierarchy Numbers) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1: Payment Failures */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-slate-300 transition-colors shadow-2xs">
+      {/* Clickable KPI Cards Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* KPI 1: Revenue at Risk */}
+        <div
+          onClick={() => onNavigate('transactions')}
+          className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-rose-400 cursor-pointer transition-colors group shadow-2xs"
+        >
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">PAYMENT FAILURES</span>
-            <CreditCard className="w-4 h-4 text-slate-400" />
-          </div>
-          <div className="mt-3">
-            <span className="font-mono text-2xl font-bold text-slate-900 tracking-tight block">
-              {totalFailuresCount}
+            <span className="text-[10px] font-bold text-slate-500 group-hover:text-rose-700 uppercase tracking-wider transition-colors">
+              REVENUE AT RISK
             </span>
-            <p className="text-xs text-slate-500 mt-1">
-              ₹{totalFailuresAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })} observed volume
-            </p>
-          </div>
-        </div>
-
-        {/* KPI 2: Revenue At Risk */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-slate-300 transition-colors shadow-2xs">
-          <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">REVENUE AT RISK</span>
             <AlertTriangle className="w-4 h-4 text-rose-500" />
           </div>
           <div className="mt-3">
-            <span className="font-mono text-2xl font-bold text-rose-600 tracking-tight block">
-              ₹{atRiskAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-            </span>
-            <p className="text-xs text-slate-500 mt-1">
-              {atRiskPayments.length} payments pending recovery
-            </p>
+            <div className="flex items-baseline justify-between">
+              <span className="font-mono text-2xl font-bold text-rose-600 tracking-tight">
+                ₹{atRiskAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-rose-600 transition-colors" />
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">{atRiskPayments.length} payments pending</p>
           </div>
         </div>
 
-        {/* KPI 3: Pending Human Approvals */}
+        {/* KPI 2: Revenue Recovered */}
         <div
-          onClick={() => onNavigate('approvals')}
-          className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between cursor-pointer hover:border-amber-400 transition-colors group shadow-2xs"
+          onClick={() => onNavigate('transactions')}
+          className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-emerald-400 cursor-pointer transition-colors group shadow-2xs"
         >
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold text-slate-500 group-hover:text-amber-700 tracking-wider uppercase transition-colors">
-              PENDING APPROVALS
+            <span className="text-[10px] font-bold text-slate-500 group-hover:text-emerald-700 uppercase tracking-wider transition-colors">
+              REVENUE RECOVERED
+            </span>
+            <TrendingUp className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="mt-3">
+            <div className="flex items-baseline justify-between">
+              <span className="font-mono text-2xl font-bold text-emerald-600 tracking-tight">
+                ₹{recoveredAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">{capturedPayments.length} recovered</p>
+          </div>
+        </div>
+
+        {/* KPI 3: Recovery Rate */}
+        <div
+          onClick={() => onNavigate('analytics')}
+          className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-blue-400 cursor-pointer transition-colors group shadow-2xs"
+        >
+          <div className="flex justify-between items-start">
+            <span className="text-[10px] font-bold text-slate-500 group-hover:text-blue-700 uppercase tracking-wider transition-colors">
+              RECOVERY RATE
+            </span>
+            <Activity className="w-4 h-4 text-blue-600" />
+          </div>
+          <div className="mt-3">
+            <div className="flex items-baseline justify-between">
+              <span className="font-mono text-2xl font-bold text-slate-900 tracking-tight">
+                {recoveryRate}%
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Analytics view &rarr;</p>
+          </div>
+        </div>
+
+        {/* KPI 4: Pending Approvals */}
+        <div
+          onClick={() => onNavigate('approvals')}
+          className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-amber-400 cursor-pointer transition-colors group shadow-2xs"
+        >
+          <div className="flex justify-between items-start">
+            <span className="text-[10px] font-bold text-slate-500 group-hover:text-amber-700 uppercase tracking-wider transition-colors">
+              HUMAN APPROVALS
             </span>
             <ShieldCheck className="w-4 h-4 text-amber-500" />
           </div>
@@ -139,37 +186,43 @@ export const Overview: React.FC<OverviewProps> = ({
               </span>
               <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition-colors" />
             </div>
-            <p className="text-xs text-slate-500 mt-1">High-value authorization queue (₹10,000+)</p>
+            <p className="text-[11px] text-slate-500 mt-1">₹10,000+ threshold</p>
           </div>
         </div>
 
-        {/* KPI 4: Recovered Revenue */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-slate-300 transition-colors shadow-2xs">
+        {/* KPI 5: Guardrail Blocks */}
+        <div
+          onClick={() => onNavigate('exceptions')}
+          className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-rose-400 cursor-pointer transition-colors group shadow-2xs"
+        >
           <div className="flex justify-between items-start">
-            <span className="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">RECOVERED REVENUE</span>
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <span className="text-[10px] font-bold text-slate-500 group-hover:text-rose-700 uppercase tracking-wider transition-colors">
+              GUARDRAIL BLOCKS
+            </span>
+            <Lock className="w-4 h-4 text-slate-700" />
           </div>
           <div className="mt-3">
-            <span className="font-mono text-2xl font-bold text-emerald-600 tracking-tight block">
-              ₹{recoveredAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-            </span>
-            <p className="text-xs text-slate-500 mt-1">
-              {recoveryRate}% recovery rate ({capturedPayments.length} recovered)
-            </p>
+            <div className="flex items-baseline justify-between">
+              <span className="font-mono text-2xl font-bold text-slate-900 tracking-tight">
+                1
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-rose-600 transition-colors" />
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">Max 2 attempts rule</p>
           </div>
         </div>
       </div>
 
-      {/* Visual Recovery Pipeline Stepper Card */}
+      {/* Visual Recovery Pipeline Stepper */}
       <div className="p-5 rounded-xl bg-white border border-slate-200 space-y-4 shadow-2xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Activity className="w-4 h-4 text-slate-700" />
             <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider">
-              DETERMINISTIC RECOVERY PIPELINE STAGES
+              RECOVERY STATUS DISTRIBUTION
             </h3>
           </div>
-          <span className="text-[11px] text-slate-500 font-mono">End-to-End Safety Execution</span>
+          <span className="text-[11px] text-slate-500 font-mono">Real-time Batch Status</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
@@ -270,79 +323,141 @@ export const Overview: React.FC<OverviewProps> = ({
         </div>
       </div>
 
-      {/* Main Two-Column Layout: Guardrail Panel + Live Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Guardrail Safety Panel */}
-        <div className="p-5 rounded-xl bg-white border border-slate-200 space-y-4 shadow-2xs">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
-              <h3 className="text-sm font-semibold text-slate-900">Guardrail Engine Protection</h3>
-            </div>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              FAIL-CLOSED
-            </span>
+      {/* High-Priority Action Items Section */}
+      <div className="p-5 rounded-xl bg-white border border-slate-200 space-y-4 shadow-2xs">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center space-x-2">
+            <AlertOctagon className="w-4 h-4 text-amber-600" />
+            <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider">HIGH-PRIORITY ACTIONS</h3>
           </div>
-
-          <div className="space-y-3 text-xs">
-            <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
-              <div className="flex justify-between items-center font-semibold text-slate-900">
-                <span>High-Value Threshold</span>
-                <span className="font-mono text-amber-700">₹10,000.00 INR</span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                Transactions $\ge$ ₹10,000 automatically trigger Human Approval Gate before execution.
-              </p>
-            </div>
-
-            <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
-              <div className="flex justify-between items-center font-semibold text-slate-900">
-                <span>Max Recovery Attempts</span>
-                <span className="font-mono text-slate-900">2 attempts max</span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                Strict limit prevents duplicate charging or customer fatigue.
-              </p>
-            </div>
-
-            <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
-              <div className="flex justify-between items-center font-semibold text-slate-900">
-                <span>Quiet Hours Enforcement</span>
-                <span className="font-mono text-slate-900">22:00 – 08:00 IST</span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                Automated customer outreach is blocked during night quiet hours.
-              </p>
-            </div>
-          </div>
+          <span className="text-[11px] text-slate-500 font-medium">Requires Operator Attention</span>
         </div>
 
-        {/* Live Telemetry Feed */}
-        <div className="lg:col-span-2 p-5 rounded-xl bg-white border border-slate-200 space-y-4 shadow-2xs">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center space-x-2">
-              <Activity className="w-4 h-4 text-slate-700" />
-              <h3 className="text-sm font-semibold text-slate-900">Live Agent Telemetry Feed</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div className="p-3.5 rounded bg-amber-50 border border-amber-200 space-y-2">
+            <div className="flex justify-between items-center font-bold text-amber-900 font-mono">
+              <span>₹25,000.00 INR</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-200 text-amber-900">APPROVAL REQUIRED</span>
             </div>
+            <p className="text-amber-800 text-[11px]">Reason: High-value recovery exceeds ₹10,000 threshold.</p>
             <button
-              onClick={() => onNavigate('livefeed')}
-              className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+              onClick={() => onNavigate('approvals')}
+              className="text-[11px] font-bold text-amber-900 hover:underline flex items-center gap-1"
             >
-              Full Feed &rarr;
+              Review in Approval Queue &rarr;
             </button>
           </div>
 
-          <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
-            {auditLogs.slice(0, 6).map((log) => (
-              <div key={log.id} className="p-3 rounded bg-slate-50 border border-slate-200 text-xs space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono font-bold text-slate-900 text-[11px]">{log.event}</span>
-                  <span className="text-[10px] text-slate-500 font-mono">{new Date(log.timestamp).toLocaleTimeString()}</span>
-                </div>
-                <p className="text-slate-600 text-[11px]">{log.reason || `Payment #${log.payment_id} decision: ${log.decision}`}</p>
-              </div>
-            ))}
+          <div className="p-3.5 rounded bg-rose-50 border border-rose-200 space-y-2">
+            <div className="flex justify-between items-center font-bold text-rose-900 font-mono">
+              <span>₹22,000.00 INR</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-rose-200 text-rose-900">GUARDRAIL BLOCKED</span>
+            </div>
+            <p className="text-rose-800 text-[11px]">Reason: Max attempt limit reached (2/2 attempts).</p>
+            <button
+              onClick={() => onNavigate('exceptions')}
+              className="text-[11px] font-bold text-rose-900 hover:underline flex items-center gap-1"
+            >
+              Inspect in Exceptions &rarr;
+            </button>
           </div>
+
+          <div className="p-3.5 rounded bg-slate-100 border border-slate-200 space-y-2">
+            <div className="flex justify-between items-center font-bold text-slate-900 font-mono">
+              <span>₹8,500.00 INR</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-300 text-slate-800">RECOVERY ATTEMPT FAILED</span>
+            </div>
+            <p className="text-slate-700 text-[11px]">Reason: Bank timeout during link creation.</p>
+            <button
+              onClick={() => onNavigate('transactions')}
+              className="text-[11px] font-bold text-slate-900 hover:underline flex items-center gap-1"
+            >
+              View Details in Transactions &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Transaction Audit Table */}
+      <div className="p-5 rounded-xl bg-white border border-slate-200 space-y-4 shadow-2xs">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">Transaction Audit Table</h3>
+            <p className="text-xs text-slate-500">Synthetic payment failure records with guardrail results</p>
+          </div>
+          <button
+            onClick={() => onNavigate('transactions')}
+            className="text-xs font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-1"
+          >
+            All Transactions ({payments.length}) &rarr;
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 text-[11px] font-semibold uppercase tracking-wider">
+                <th className="py-2.5 px-3">Customer</th>
+                <th className="py-2.5 px-3">Payment ID</th>
+                <th className="py-2.5 px-3">Amount</th>
+                <th className="py-2.5 px-3">Failure Reason</th>
+                <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3">Strategy</th>
+                <th className="py-2.5 px-3">Guardrail Result</th>
+                <th className="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {payments.slice(0, 6).map((p) => {
+                const customer = getCustomerName(p.id);
+                const isCaptured = p.status === 'captured';
+                const isHighValue = (p.amount || 0) >= 10000;
+
+                return (
+                  <tr
+                    key={p.id}
+                    onClick={() => onSelectPayment(p)}
+                    className="hover:bg-slate-50 cursor-pointer transition-colors"
+                  >
+                    <td className="py-3 px-3 font-medium text-slate-900">{customer}</td>
+                    <td className="py-3 px-3 font-mono font-medium text-slate-600">#{p.id}</td>
+                    <td className="py-3 px-3 font-mono font-bold text-slate-900">
+                      ₹{(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3 px-3 text-slate-600 truncate max-w-[180px]">
+                      {p.failure_reason || 'Failure'}
+                    </td>
+                    <td className="py-3 px-3">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                          isCaptured
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}
+                      >
+                        {p.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 font-mono text-[11px] text-slate-700">PAYMENT_LINK</td>
+                    <td className="py-3 px-3">
+                      {isHighValue ? (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                          HUMAN_APPROVAL
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          ALLOW
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <span className="text-slate-900 font-semibold hover:underline text-[11px]">Inspect &rarr;</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

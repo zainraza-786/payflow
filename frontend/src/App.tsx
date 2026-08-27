@@ -12,6 +12,9 @@ import { DemoWebhookModal } from './components/DemoWebhookModal';
 import { LiveAgentFeedView } from './components/LiveAgentFeedView';
 import { ExceptionsView } from './components/ExceptionsView';
 import { BaselineView } from './components/BaselineView';
+import { FinancialAnalyticsView } from './components/FinancialAnalyticsView';
+import { AiAssistantView } from './components/AiAssistantView';
+import { SingleTransactionDemoModal } from './components/SingleTransactionDemoModal';
 
 import type { Payment, AuditLog, ApprovalResult } from './types';
 import {
@@ -29,10 +32,10 @@ const INITIAL_DEMO_PAYMENTS: Payment[] = [
   {
     id: 8801,
     razorpay_payment_id: 'pay_demo_8801',
-    amount: 15000,
+    amount: 25000,
     currency: 'INR',
     status: 'failed',
-    failure_reason: 'High-value transaction - Insufficient Funds',
+    failure_reason: 'Insufficient Funds - High-value threshold exceeded',
     created_at: new Date(Date.now() - 3600000).toISOString(),
     updated_at: new Date(Date.now() - 3600000).toISOString(),
   },
@@ -42,14 +45,14 @@ const INITIAL_DEMO_PAYMENTS: Payment[] = [
     amount: 45000,
     currency: 'INR',
     status: 'failed',
-    failure_reason: 'High-value corporate payment - Daily Limit Exceeded',
+    failure_reason: 'Daily Limit Exceeded - Corporate Account',
     created_at: new Date(Date.now() - 7200000).toISOString(),
     updated_at: new Date(Date.now() - 7200000).toISOString(),
   },
   {
     id: 8803,
     razorpay_payment_id: 'pay_demo_8803',
-    amount: 150,
+    amount: 8500,
     currency: 'INR',
     status: 'captured',
     failure_reason: 'Authentication Timeout - Recovered via Link',
@@ -69,7 +72,7 @@ const INITIAL_DEMO_PAYMENTS: Payment[] = [
   {
     id: 8805,
     razorpay_payment_id: 'pay_demo_8805',
-    amount: 8500,
+    amount: 75300,
     currency: 'INR',
     status: 'captured',
     failure_reason: 'Authentication Timeout - Recovered',
@@ -82,7 +85,7 @@ const INITIAL_DEMO_PAYMENTS: Payment[] = [
     amount: 22000,
     currency: 'INR',
     status: 'failed',
-    failure_reason: 'Guardrail Blocked - Max 2 Attempts Reached',
+    failure_reason: 'Guardrail Blocked - Max 2 Attempt Limit Reached',
     created_at: new Date(Date.now() - 21600000).toISOString(),
     updated_at: new Date(Date.now() - 21600000).toISOString(),
   },
@@ -94,10 +97,10 @@ const INITIAL_DEMO_APPROVALS: ApprovalResult[] = [
     payment_id: 8801,
     requested_strategy: 'PAYMENT_LINK',
     approval_status: 'PENDING',
-    reason: 'High-value threshold exceeded (₹15,000 >= ₹10,000)',
+    reason: 'High-value threshold exceeded (₹25,000 >= ₹10,000)',
     created_at: new Date(Date.now() - 3600000).toISOString(),
     expires_at: new Date(Date.now() + 82800000).toISOString(),
-    summary: 'Pending authorization for ₹15,000 INR recovery attempt.',
+    summary: 'Pending authorization for Rohan Mehta (₹25,000.00 INR).',
   },
   {
     id: 102,
@@ -107,7 +110,7 @@ const INITIAL_DEMO_APPROVALS: ApprovalResult[] = [
     reason: 'High-value threshold exceeded (₹45,000 >= ₹10,000)',
     created_at: new Date(Date.now() - 7200000).toISOString(),
     expires_at: new Date(Date.now() + 79200000).toISOString(),
-    summary: 'Pending authorization for ₹45,000 INR recovery attempt.',
+    summary: 'Pending authorization for Acme Demo Pvt Ltd (₹45,000.00 INR).',
   },
 ];
 
@@ -118,7 +121,7 @@ const INITIAL_DEMO_AUDITS: AuditLog[] = [
     timestamp: new Date(Date.now() - 3600000).toISOString(),
     event: 'recovery.approval.requested',
     decision: 'HUMAN_APPROVAL',
-    reason: 'High-value threshold exceeded (₹15,000 >= ₹10,000)',
+    reason: 'High-value threshold exceeded (₹25,000 >= ₹10,000)',
     guardrail_result: 'HUMAN_APPROVAL',
   },
   {
@@ -127,7 +130,7 @@ const INITIAL_DEMO_AUDITS: AuditLog[] = [
     timestamp: new Date(Date.now() - 9000000).toISOString(),
     event: 'revenue.recovered',
     decision: 'CAPTURED',
-    reason: 'Attributed to attempt #1 (PAYMENT_LINK)',
+    reason: 'Attributed to attempt #1 (Sneha Kulkarni - PAYMENT_LINK)',
     guardrail_result: 'ALLOW',
   },
   {
@@ -163,6 +166,7 @@ export function App() {
   // UI Modal & Selection States
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [singleDemoPayment, setSingleDemoPayment] = useState<Payment | null>(null);
   const [loadingWorkflowId, setLoadingWorkflowId] = useState<number | null>(null);
   const [isBatchRunning, setIsBatchRunning] = useState(false);
 
@@ -186,10 +190,10 @@ export function App() {
   const handleRunDemoBatch = async () => {
     setIsBatchRunning(true);
     try {
-      const demoId = `pay_batch_${Date.now().toString().slice(-5)}`;
-      const amountPaise = 18500 * 100; // ₹18,500 High-value test
+      const demoId = `pay_demo_${Date.now().toString().slice(-5)}`;
+      const amountPaise = 28500 * 100; // ₹28,500 High-value test
 
-      // 1. Ingest payment failure webhook
+      // Ingest payment failure webhook
       const webhookPayload = {
         entity: 'event',
         account_id: 'acc_batch_runner',
@@ -201,7 +205,7 @@ export function App() {
               amount: amountPaise,
               currency: 'INR',
               status: 'failed',
-              error_description: 'High-value transaction - Insufficient Funds',
+              error_description: 'Insufficient Funds - Rohan Mehta',
             },
           },
         },
@@ -213,15 +217,14 @@ export function App() {
         // Fallback for offline local state update
       }
 
-      // Add to local state dynamically
       const newPayId = Date.now();
       const newPayment: Payment = {
         id: newPayId,
         razorpay_payment_id: demoId,
-        amount: 18500,
+        amount: 28500,
         currency: 'INR',
         status: 'failed',
-        failure_reason: 'High-value transaction - Insufficient Funds',
+        failure_reason: 'Insufficient Funds - Rohan Mehta',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -231,10 +234,10 @@ export function App() {
         payment_id: newPayId,
         requested_strategy: 'PAYMENT_LINK',
         approval_status: 'PENDING',
-        reason: 'High-value threshold exceeded (₹18,500 >= ₹10,000)',
+        reason: 'High-value threshold exceeded (₹28,500 >= ₹10,000)',
         created_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 86400000).toISOString(),
-        summary: 'Pending authorization for ₹18,500 INR recovery attempt.',
+        summary: 'Pending authorization for Rohan Mehta (₹28,500.00 INR).',
       };
 
       const newAudit1: AuditLog = {
@@ -252,7 +255,7 @@ export function App() {
         timestamp: new Date().toISOString(),
         event: 'recovery.approval.requested',
         decision: 'HUMAN_APPROVAL',
-        reason: 'High-value threshold exceeded (₹18,500 >= ₹10,000)',
+        reason: 'High-value threshold exceeded (₹28,500 >= ₹10,000)',
         guardrail_result: 'HUMAN_APPROVAL',
       };
 
@@ -302,7 +305,6 @@ export function App() {
       const res = await approveRequest(approvalId, reason);
       setApprovals((prev) => prev.map((a) => (a.id === approvalId ? res : a)));
     } catch {
-      // Offline fallback state transition
       setApprovals((prev) =>
         prev.map((a) => (a.id === approvalId ? { ...a, approval_status: 'APPROVED' } : a))
       );
@@ -356,7 +358,6 @@ export function App() {
         );
       }
     } catch {
-      // Offline fallback: mark as captured (recovered)
       setPayments((prev) =>
         prev.map((p) => (p.id === app.payment_id ? { ...p, status: 'captured' } : p))
       );
@@ -376,6 +377,8 @@ export function App() {
 
   const pendingApprovalsCount = approvals.filter((a) => a.approval_status === 'PENDING').length;
   const exceptionsCount = pendingApprovalsCount + payments.filter((p) => (p.amount || 0) >= 20000 && p.status === 'failed').length;
+  const totalRiskAmount = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
+  const recoveredAmount = payments.filter((p) => p.status === 'captured').reduce((acc, p) => acc + (p.amount || 0), 0);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
@@ -408,24 +411,20 @@ export function App() {
             />
           )}
 
-          {activeTab === 'livefeed' && <LiveAgentFeedView auditLogs={auditLogs} />}
-
-          {activeTab === 'exceptions' && (
-            <ExceptionsView
-              payments={payments}
-              approvals={approvals}
-              onSelectPayment={setSelectedPayment}
-            />
-          )}
-
-          {activeTab === 'baseline' && <BaselineView />}
-
-          {activeTab === 'payments' && (
+          {(activeTab === 'transactions' || activeTab === 'payments') && (
             <PaymentsTable
               payments={payments}
               onSelectPayment={setSelectedPayment}
               onRunWorkflow={handleRunWorkflow}
               loadingWorkflowId={loadingWorkflowId}
+            />
+          )}
+
+          {activeTab === 'analytics' && (
+            <FinancialAnalyticsView
+              totalRiskAmount={totalRiskAmount}
+              recoveredAmount={recoveredAmount}
+              recoveryRate={payments.length > 0 ? ((payments.filter((p) => p.status === 'captured').length / payments.length) * 100).toFixed(1) : '0.0'}
             />
           )}
 
@@ -439,7 +438,27 @@ export function App() {
             />
           )}
 
+          {activeTab === 'exceptions' && (
+            <ExceptionsView
+              payments={payments}
+              approvals={approvals}
+              onSelectPayment={setSelectedPayment}
+            />
+          )}
+
+          {activeTab === 'livefeed' && <LiveAgentFeedView auditLogs={auditLogs} />}
+
           {activeTab === 'audit' && <AuditTrailView auditLogs={auditLogs} />}
+
+          {activeTab === 'baseline' && <BaselineView />}
+
+          {activeTab === 'assistant' && (
+            <AiAssistantView
+              payments={payments}
+              pendingApprovals={approvals.filter((a) => a.approval_status === 'PENDING')}
+              recoveredAmount={recoveredAmount}
+            />
+          )}
 
           {activeTab === 'settings' && <SettingsView backendOnline={backendOnline} />}
         </main>
@@ -459,6 +478,12 @@ export function App() {
         isOpen={demoModalOpen}
         onClose={() => setDemoModalOpen(false)}
         onRefreshData={refreshData}
+      />
+
+      {/* Single Transaction Demo Walkthrough Modal */}
+      <SingleTransactionDemoModal
+        payment={singleDemoPayment}
+        onClose={() => setSingleDemoPayment(null)}
       />
     </div>
   );

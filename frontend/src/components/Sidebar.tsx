@@ -13,16 +13,21 @@ import {
   Activity,
   AlertOctagon,
   BarChart3,
+  PieChart,
+  Bot,
 } from 'lucide-react';
 
 export type NavTab =
   | 'overview'
-  | 'livefeed'
-  | 'exceptions'
-  | 'baseline'
+  | 'transactions'
   | 'payments'
+  | 'analytics'
   | 'approvals'
+  | 'exceptions'
+  | 'livefeed'
   | 'audit'
+  | 'baseline'
+  | 'assistant'
   | 'settings';
 
 interface SidebarProps {
@@ -44,16 +49,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navItems = [
     { id: 'overview' as NavTab, label: 'Overview', icon: LayoutDashboard },
-    { id: 'livefeed' as NavTab, label: 'Live Agent Feed', icon: Activity },
-    {
-      id: 'exceptions' as NavTab,
-      label: 'Exceptions',
-      icon: AlertOctagon,
-      badge: exceptionsCount > 0 ? exceptionsCount : undefined,
-      badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
-    },
-    { id: 'baseline' as NavTab, label: 'VS Baseline', icon: BarChart3 },
-    { id: 'payments' as NavTab, label: 'Payments', icon: CreditCard },
+    { id: 'transactions' as NavTab, label: 'Transactions', icon: CreditCard },
+    { id: 'analytics' as NavTab, label: 'Analytics', icon: PieChart },
     {
       id: 'approvals' as NavTab,
       label: 'Human Approval',
@@ -61,7 +58,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       badge: pendingApprovalsCount > 0 ? pendingApprovalsCount : undefined,
       badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
     },
+    {
+      id: 'exceptions' as NavTab,
+      label: 'Exceptions',
+      icon: AlertOctagon,
+      badge: exceptionsCount > 0 ? exceptionsCount : undefined,
+      badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
+    },
+    { id: 'livefeed' as NavTab, label: 'Live Agent Feed', icon: Activity },
     { id: 'audit' as NavTab, label: 'Audit Trail', icon: History },
+    { id: 'baseline' as NavTab, label: 'VS Baseline', icon: BarChart3 },
+    { id: 'assistant' as NavTab, label: 'AI Assistant', icon: Bot },
     { id: 'settings' as NavTab, label: 'System Settings', icon: Settings },
   ];
 
