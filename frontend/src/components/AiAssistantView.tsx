@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bot, Send, Sparkles } from 'lucide-react';
+import { Bot, Send, AlertTriangle, FileSpreadsheet, CreditCard, Copy } from 'lucide-react';
 import type { Payment, ApprovalResult } from '../types';
 
 interface AiAssistantViewProps {
@@ -10,41 +10,40 @@ interface AiAssistantViewProps {
 
 export const AiAssistantView: React.FC<AiAssistantViewProps> = ({
   payments,
-  pendingApprovals,
   recoveredAmount,
 }) => {
   const [messages, setMessages] = useState<Array<{ sender: 'user' | 'assistant'; text: string }>>([
     {
       sender: 'assistant',
-      text: 'Hello! I am the PayFlow AI Recovery Assistant. Ask me questions about active payment risks, guardrails, human approvals, or recovery statistics.',
+      text: '👋 Hello! I am your PayFlow AI Finance Controller. How can I assist you with today\'s reconciliation audit and payment recovery?',
     },
   ]);
   const [input, setInput] = useState('');
 
-  const sampleQuestions = [
-    'What is our biggest recovery risk?',
-    'Why is ₹25,000 waiting for approval?',
-    'Which failure reason occurs most often?',
-    'How much revenue has been recovered?',
+  const promptPills = [
+    { label: 'What is our biggest risk?', icon: AlertTriangle, color: 'text-amber-600 bg-amber-50 border-amber-200' },
+    { label: 'Missing Payments Audit', icon: FileSpreadsheet, color: 'text-rose-600 bg-rose-50 border-rose-200' },
+    { label: 'Razorpay MDR Fee Analysis', icon: CreditCard, color: 'text-blue-600 bg-blue-50 border-blue-200' },
+    { label: 'Duplicate Charges Audit', icon: Copy, color: 'text-purple-600 bg-purple-50 border-purple-200' },
   ];
 
   const handleAsk = (query: string) => {
     if (!query.trim()) return;
 
     const userMsg = { sender: 'user' as const, text: query };
-    let replyText = 'I analyzed the synthetic dataset: ';
+    let replyText = 'I performed a real-time audit across the current synthetic dataset: ';
 
     const qLower = query.toLowerCase();
-    if (qLower.includes('biggest recovery risk') || qLower.includes('biggest risk')) {
-      replyText += `The largest un-recovered payment risk is Payment #8802 (₹45,000.00 INR) due to a daily limit failure. It is currently held in the Human Approval Queue.`;
-    } else if (qLower.includes('waiting for approval') || qLower.includes('25,000')) {
-      replyText += `Payment #8801 (₹25,000.00 INR) exceeds the configured high-value threshold (₹10,000.00). In accordance with fail-closed guardrails, execution is suspended until a human operator authorizes recovery.`;
-    } else if (qLower.includes('most often') || qLower.includes('reason')) {
-      replyText += `Insufficient Funds is the primary cause of payment failures (45%), followed by Authentication Timeout (30%).`;
-    } else if (qLower.includes('recovered')) {
-      replyText += `Total recovered revenue stands at ₹${recoveredAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR across ${payments.filter((p) => p.status === 'captured').length} captured transactions.`;
+    if (qLower.includes('biggest risk') || qLower.includes('risk')) {
+      replyText += `The highest risk uncollected invoice is INV-2026-019 (Amitabh Saxena) for ₹35,000.00 INR due to a missing payment. It is held in the Human Approval Queue.`;
+    } else if (qLower.includes('missing payment')) {
+      replyText += `Identified 3 missing payments totaling ₹92,000.00 INR (Amitabh Saxena ₹35,000, Alia Bhatt ₹33,000, Neha Reddy ₹24,000). Automated resolution templates have been prepared.`;
+    } else if (qLower.includes('mdr') || qLower.includes('fee')) {
+      replyText += `Razorpay Test Mode fee rate evaluated at standard 2.0% MDR. Zero anomalous processing fee discrepancies detected.`;
+    } else if (qLower.includes('duplicate')) {
+      replyText += `Duplicate charge scan complete: 0 duplicate payment executions detected across the 45-transaction batch.`;
     } else {
-      replyText += `PayFlow monitors ${payments.length} observed payment failures. ${pendingApprovals.length} high-value transactions currently await Human Approval authorization.`;
+      replyText += `PayFlow monitors ${payments.length} synthetic payment records. Total revenue recovered stands at ₹${recoveredAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR.`;
     }
 
     setMessages((prev) => [...prev, userMsg, { sender: 'assistant', text: replyText }]);
@@ -52,48 +51,55 @@ export const AiAssistantView: React.FC<AiAssistantViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Header Banner */}
-      <div className="p-5 rounded-xl bg-white border border-slate-200 flex items-center justify-between">
+    <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-6 max-w-5xl font-sans">
+      {/* Title Header */}
+      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded bg-slate-900 text-white">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
             <Bot className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-slate-900">AI Recovery Explanatory Assistant</h2>
+            <h2 className="text-base font-bold text-slate-900">PayFlow AI Finance Assistant</h2>
             <p className="text-xs text-slate-500">
-              Interactive explanatory assistant answering queries using current synthetic dashboard telemetry.
+              Ask questions about discrepancies, financial risk, Razorpay fees, duplicate transactions, or draft resolution emails.
             </p>
           </div>
         </div>
-        <span className="px-2.5 py-1 rounded text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-amber-600" /> EXPLANATORY ONLY
-        </span>
+        <button
+          onClick={() => setMessages([{ sender: 'assistant', text: '👋 Hello! I am your PayFlow AI Finance Controller.' }])}
+          className="px-3 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold"
+        >
+          🗑️ Clear History
+        </button>
       </div>
 
-      {/* Suggested Questions */}
-      <div className="flex flex-wrap gap-2">
-        {sampleQuestions.map((q, idx) => (
-          <button
-            key={idx}
-            onClick={() => handleAsk(q)}
-            className="px-3 py-1.5 rounded bg-white hover:bg-slate-100 border border-slate-200 text-xs text-slate-700 font-medium transition-colors shadow-2xs text-left"
-          >
-            💬 {q}
-          </button>
-        ))}
+      {/* Prompt Pills Row matching reference */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {promptPills.map((pill, idx) => {
+          const Icon = pill.icon;
+          return (
+            <button
+              key={idx}
+              onClick={() => handleAsk(pill.label)}
+              className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center space-x-2 transition-all hover:shadow-xs ${pill.color}`}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="truncate">{pill.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Chat Messages */}
-      <div className="p-5 rounded-xl bg-white border border-slate-200 space-y-4 min-h-[340px] flex flex-col justify-between shadow-2xs">
+      {/* Chat Messages Transcript */}
+      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 min-h-[320px] flex flex-col justify-between">
         <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
           {messages.map((m, idx) => (
             <div
               key={idx}
-              className={`p-3.5 rounded-lg text-xs max-w-2xl leading-relaxed ${
+              className={`p-4 rounded-xl text-xs leading-relaxed max-w-2xl ${
                 m.sender === 'user'
-                  ? 'bg-slate-900 text-white ml-auto font-medium'
-                  : 'bg-slate-50 text-slate-800 border border-slate-200'
+                  ? 'bg-blue-600 text-white ml-auto font-medium shadow-sm'
+                  : 'bg-white text-slate-800 border border-slate-200 shadow-2xs'
               }`}
             >
               {m.text}
@@ -101,21 +107,22 @@ export const AiAssistantView: React.FC<AiAssistantViewProps> = ({
           ))}
         </div>
 
-        {/* Input Bar */}
-        <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
+        {/* Bottom Input */}
+        <div className="pt-3 border-t border-slate-200 flex items-center gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAsk(input)}
-            placeholder="Ask about active risks, guardrails, or approvals..."
-            className="flex-1 px-3.5 py-2 rounded bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-slate-900"
+            placeholder="Ask PayFlow AI Finance Assistant..."
+            className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-blue-600"
           />
           <button
             onClick={() => handleAsk(input)}
-            className="px-4 py-2 rounded bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-2xs"
+            className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center space-x-1.5 shadow-sm"
           >
             <Send className="w-3.5 h-3.5" />
+            <span>Send</span>
           </button>
         </div>
       </div>
