@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FileText, Download, Copy, Check, FileSpreadsheet, ShieldCheck, TrendingUp, AlertTriangle } from 'lucide-react';
+import { FileText, Download, Copy, Check, FileSpreadsheet, ShieldCheck, TrendingUp, AlertTriangle, Table } from 'lucide-react';
 import type { Payment, AuditLog } from '../types';
+import { downloadXlsxReport, downloadCsvReport } from '../utils/excelExport';
 
 interface ReportsViewProps {
   payments: Payment[];
@@ -77,93 +78,12 @@ ${failedPayments
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownloadXlsx = () => {
+    downloadXlsxReport(payments, auditLogs, 'payflow_revenue_recovery_audit_report');
+  };
+
   const handleDownloadCsv = () => {
-    const summaryLines = [
-      `"Payflow — Revenue Recovery & Audit Report"`,
-      `"Generated At:","${genDate}"`,
-      `"Environment:","Razorpay TEST MODE — Verified Telemetry"`,
-      `""`,
-      `"EXECUTIVE AUDIT SUMMARY"`,
-      `"Total Payment / Recovery Events:","${totalEvents}"`,
-      `"Active Failed Payments:","${failedPayments.length}"`,
-      `"Successfully Recovered Payments:","${recoveredPayments.length}"`,
-      `"Total Gross Volume (INR):","₹${totalInvoicedValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}"`,
-      `"Total Revenue Recovered (INR):","₹${recoveredValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}"`,
-      `"Recovery Rate (%):","${recoveryRate}%"`,
-      `"Human Review Queue Cases:","${humanReviewCases}"`,
-      `"Allowed Guardrail Executions:","${allowedActions}"`,
-      `"Blocked / Halted Actions:","${blockedActions}"`,
-      `""`,
-      `"DETAILED RECOVERY ACTIVITY & AUDIT TRAIL"`,
-    ];
-
-    const tableHeaders = [
-      'Audit Event ID',
-      'Payment ID',
-      'Customer Name',
-      'Amount (INR)',
-      'Currency',
-      'Payment Status',
-      'Event Type',
-      'Recovery Decision',
-      'Guardrail Result',
-      'Reason / Diagnosis',
-      'Timestamp (IST)',
-    ];
-
-    const rows = (auditLogs.length > 0 ? auditLogs : []).map((log) => {
-      const p = payments.find((item) => item.id === log.payment_id);
-      const customerName = p?.customer_name || (log.reason?.match(/\(([^)]+)\)/)?.[1] || 'Verified Customer');
-      const amount = p?.amount !== undefined ? `₹${p.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : 'N/A';
-      const currency = p?.currency || 'INR';
-      const status = p?.status ? p.status.toUpperCase() : 'PENDING';
-      const formattedTimestamp = new Date(log.timestamp).toLocaleString('en-IN', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      });
-
-      return [
-        `"=""${log.id}"""`, // Text formula preventing scientific notation in Excel
-        `"=""${log.payment_id}"""`, // Text formula for Payment ID
-        `"${customerName.replace(/"/g, '""')}"`,
-        `"${amount}"`,
-        `"${currency}"`,
-        `"${status}"`,
-        `"${log.event.replace(/"/g, '""')}"`,
-        `"${log.decision.replace(/"/g, '""')}"`,
-        `"${(log.guardrail_result || 'N/A').replace(/"/g, '""')}"`,
-        `"${(log.reason || '').replace(/"/g, '""')}"`,
-        `"${formattedTimestamp}"`,
-      ];
-    });
-
-    // If no audit logs, export transaction activity table
-    const fallbackRows = payments.map((p) => [
-      `"=""${p.id + 900}"""`,
-      `"=""${p.id}"""`,
-      `"${(p.customer_name || 'Customer').replace(/"/g, '""')}"`,
-      `"₹${(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}"`,
-      `"${p.currency || 'INR'}"`,
-      `"${p.status.toUpperCase()}"`,
-      `"payment.${p.status}"`,
-      `"${p.status === 'captured' ? 'CAPTURED' : 'HUMAN_APPROVAL'}"`,
-      `"${p.amount >= 10000 ? 'HUMAN_APPROVAL' : 'ALLOW'}"`,
-      `"${(p.failure_reason || '').replace(/"/g, '""')}"`,
-      `"${new Date(p.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}"`,
-    ]);
-
-    const activeDataRows = rows.length > 0 ? rows : fallbackRows;
-
-    const csvContent =
-      'data:text/csv;charset=utf-8,\uFEFF' +
-      encodeURIComponent([...summaryLines, tableHeaders.join(','), ...activeDataRows.map((r) => r.join(','))].join('\n'));
-
-    const link = document.createElement('a');
-    link.setAttribute('href', csvContent);
-    link.setAttribute('download', `payflow_recovery_audit_report_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadCsvReport(payments, auditLogs, 'payflow_revenue_recovery_audit_report');
   };
 
   const handleDownloadMd = () => {
@@ -229,53 +149,77 @@ ${failedPayments
       <div className="card-stitch p-6 space-y-4">
         <div>
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-600" />
-            Export Reconciliation Audit Reports
+            <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+            Download Audit & Recovery Reports
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Download presentation-ready reports with text-preserved IDs (no scientific notation) and complete customer metadata.
+            Export presentation-ready Excel (.xlsx) and CSV reports with explicit column sizing, frozen headers, and text-preserved IDs (no scientific notation or data loss warnings).
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          {/* Card 1 */}
-          <div className="p-5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-3">
-            <div className="flex items-center space-x-2">
-              <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
-              <h3 className="text-xs font-bold text-slate-900">Enriched Audit CSV Report</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          {/* Card 1: Excel XLSX (Primary) */}
+          <div className="p-5 rounded-xl bg-slate-50/80 border border-slate-200/90 space-y-3 flex flex-col justify-between">
+            <div className="space-y-1.5">
+              <div className="flex items-center space-x-2">
+                <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-xs font-bold text-slate-900">Excel Workbook (.xlsx)</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Full OpenXML workbook with autosized columns, frozen headers, executive KPI summary, and zero data loss warnings in Excel.
+              </p>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Contains executive KPI summary, verified customer names, exact string-preserved IDs, and full guardrail decision logs.
-            </p>
             <button
-              onClick={handleDownloadCsv}
-              className="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-sm transition-all cursor-pointer"
+              onClick={handleDownloadXlsx}
+              className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-sm transition-all cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Download Reconciliation CSV Report</span>
+              <span>Download Excel Report (.xlsx)</span>
             </button>
           </div>
 
-          {/* Card 2 */}
-          <div className="p-5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-3">
-            <div className="flex items-center space-x-2">
-              <FileText className="w-5 h-5 text-blue-600" />
-              <h3 className="text-xs font-bold text-slate-900">Executive Summary Markdown (.md)</h3>
+          {/* Card 2: Enriched CSV */}
+          <div className="p-5 rounded-xl bg-slate-50/80 border border-slate-200/90 space-y-3 flex flex-col justify-between">
+            <div className="space-y-1.5">
+              <div className="flex items-center space-x-2">
+                <Table className="w-5 h-5 text-blue-600" />
+                <h3 className="text-xs font-bold text-slate-900">Audit CSV Report (.csv)</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Standard CSV format with UTF-8 BOM, text formulas preventing scientific notation, and complete audit trail.
+              </p>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Formatted audit report with high-level KPI summaries, exception items, and guardrail compliance status.
-            </p>
+            <button
+              onClick={handleDownloadCsv}
+              className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center justify-center space-x-2 shadow-2xs transition-all cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download CSV Report</span>
+            </button>
+          </div>
+
+          {/* Card 3: Markdown */}
+          <div className="p-5 rounded-xl bg-slate-50/80 border border-slate-200/90 space-y-3 flex flex-col justify-between">
+            <div className="space-y-1.5">
+              <div className="flex items-center space-x-2">
+                <FileText className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-xs font-bold text-slate-900">Executive Markdown (.md)</h3>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Formatted markdown document with KPI metrics, active exceptions, and guardrail compliance records.
+              </p>
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownloadMd}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 shadow-2xs transition-colors cursor-pointer"
+                className="flex-1 py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center justify-center space-x-1.5 shadow-2xs transition-colors cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Download Summary (.md)</span>
+                <span>Download .md</span>
               </button>
               <button
                 onClick={handleCopySummary}
-                className="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center space-x-1 shadow-2xs transition-colors cursor-pointer"
+                className="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center space-x-1 shadow-2xs transition-colors cursor-pointer"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
                 <span>{copied ? 'Copied' : 'Copy'}</span>

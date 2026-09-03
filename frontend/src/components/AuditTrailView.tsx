@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { AuditLog, Payment } from '../types';
+import { downloadXlsxReport, downloadCsvReport } from '../utils/excelExport';
 
 interface AuditTrailViewProps {
   auditLogs: AuditLog[];
@@ -16,90 +17,12 @@ export const AuditTrailView: React.FC<AuditTrailViewProps> = ({ auditLogs, payme
     return a.event === filterEvent;
   });
 
+  const handleExportXlsx = () => {
+    downloadXlsxReport(payments, filteredLogs, 'payflow_audit_trail_report');
+  };
+
   const handleExportCsv = () => {
-    const genDate = new Date().toLocaleString('en-IN', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    });
-
-    const totalEvents = filteredLogs.length;
-    const failedCount = payments.filter((p) => p.status === 'failed').length;
-    const capturedCount = payments.filter((p) => p.status === 'captured').length;
-    const totalRecoveredAmount = payments
-      .filter((p) => p.status === 'captured')
-      .reduce((sum, p) => sum + (p.amount || 0), 0);
-    const humanReviewCases = auditLogs.filter((a) => (a.decision || '').includes('HUMAN') || (a.guardrail_result || '').includes('HUMAN')).length;
-    const allowedActions = auditLogs.filter((a) => (a.guardrail_result || a.decision || '').includes('ALLOW') || (a.decision || '').includes('CAPTURED')).length;
-    const blockedActions = auditLogs.filter((a) => (a.guardrail_result || a.decision || '').includes('BLOCK') || (a.guardrail_result || '').includes('STOP')).length;
-
-    // Professional Report Structure with Presentation Title, Metadata & Calculated KPI Summary
-    const summaryLines = [
-      `"Payflow — Revenue Recovery & Audit Report"`,
-      `"Generated At:","${genDate}"`,
-      `"Environment:","Razorpay TEST MODE — Verified Telemetry"`,
-      `""`,
-      `"EXECUTIVE AUDIT SUMMARY"`,
-      `"Total Payment / Recovery Events:","${totalEvents}"`,
-      `"Active Failed Payments:","${failedCount}"`,
-      `"Successfully Recovered Payments:","${capturedCount}"`,
-      `"Total Revenue Recovered (INR):","₹${totalRecoveredAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}"`,
-      `"Human Review Queue Cases:","${humanReviewCases}"`,
-      `"Allowed Guardrail Executions:","${allowedActions}"`,
-      `"Blocked / Halted Actions:","${blockedActions}"`,
-      `""`,
-      `"DETAILED RECOVERY ACTIVITY & AUDIT TRAIL"`,
-    ];
-
-    const tableHeaders = [
-      'Audit Event ID',
-      'Payment ID',
-      'Customer Name',
-      'Amount (INR)',
-      'Currency',
-      'Payment Status',
-      'Event Type',
-      'Recovery Decision',
-      'Guardrail Result',
-      'Reason / Diagnosis',
-      'Timestamp (IST)',
-    ];
-
-    const dataRows = filteredLogs.map((log) => {
-      const p = payments.find((item) => item.id === log.payment_id);
-      const customerName = p?.customer_name || (log.reason?.match(/\(([^)]+)\)/)?.[1] || 'Verified Customer');
-      const amount = p?.amount !== undefined ? `₹${p.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : 'N/A';
-      const currency = p?.currency || 'INR';
-      const status = p?.status ? p.status.toUpperCase() : 'PENDING';
-      const formattedTimestamp = new Date(log.timestamp).toLocaleString('en-IN', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      });
-
-      return [
-        `"=""${log.id}"""`, // Preserves large numeric IDs as text in Excel (no scientific notation 1.79E+12)
-        `"=""${log.payment_id}"""`, // Preserves Payment ID as clean string
-        `"${customerName.replace(/"/g, '""')}"`,
-        `"${amount}"`,
-        `"${currency}"`,
-        `"${status}"`,
-        `"${log.event.replace(/"/g, '""')}"`,
-        `"${log.decision.replace(/"/g, '""')}"`,
-        `"${(log.guardrail_result || 'N/A').replace(/"/g, '""')}"`,
-        `"${(log.reason || '').replace(/"/g, '""')}"`,
-        `"${formattedTimestamp}"`,
-      ];
-    });
-
-    const csvContent =
-      'data:text/csv;charset=utf-8,\uFEFF' +
-      encodeURIComponent([...summaryLines, tableHeaders.join(','), ...dataRows.map((r) => r.join(','))].join('\n'));
-
-    const link = document.createElement('a');
-    link.setAttribute('href', csvContent);
-    link.setAttribute('download', `payflow_recovery_audit_report_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadCsvReport(payments, filteredLogs, 'payflow_audit_trail_report');
   };
 
   return (
@@ -114,7 +37,7 @@ export const AuditTrailView: React.FC<AuditTrailViewProps> = ({ auditLogs, payme
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="material-symbols-outlined text-[18px] text-secondary">filter_list</span>
           <select
             value={filterEvent}
@@ -129,12 +52,20 @@ export const AuditTrailView: React.FC<AuditTrailViewProps> = ({ auditLogs, payme
             ))}
           </select>
           <button
+            onClick={handleExportXlsx}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-body-sm text-body-sm font-semibold transition-colors shadow-xs cursor-pointer"
+            title="Download Full Excel (.xlsx) Report"
+          >
+            <span className="material-symbols-outlined text-[16px]">table_view</span>
+            <span>Excel (.xlsx)</span>
+          </button>
+          <button
             onClick={handleExportCsv}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-slate-800 text-white font-body-sm text-body-sm font-semibold transition-colors shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 font-body-sm text-body-sm font-semibold transition-colors shadow-2xs cursor-pointer"
             title="Download CSV Audit Report"
           >
             <span className="material-symbols-outlined text-[16px]">download</span>
-            <span>Export CSV</span>
+            <span>CSV</span>
           </button>
         </div>
       </div>
