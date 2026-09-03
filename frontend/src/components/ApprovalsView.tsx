@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Check, X, Play } from 'lucide-react';
 import type { ApprovalResult, Payment } from '../types';
 
 interface ApprovalsViewProps {
@@ -40,43 +39,51 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Header Banner */}
-      <div className="p-5 rounded-xl bg-white border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-            <ShieldCheck className="w-6 h-6" />
+      <div className="card-stitch p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-status-pending/10 text-status-pending flex items-center justify-center">
+            <span className="material-symbols-outlined text-[24px]">gavel</span>
           </div>
           <div>
-            <h2 className="text-base font-semibold text-slate-900">Human Approval Authorization Queue</h2>
-            <p className="text-xs text-slate-500">
-              High-value payments (₹10,000+) require explicit human authorization before execution.
+            <h2 className="font-headline-md text-headline-md font-bold text-primary tracking-tight">
+              Human Approval Gate
+            </h2>
+            <p className="font-body-sm text-body-sm text-secondary mt-0.5">
+              High-value payment recoveries (₹10,000+ floor) require explicit human authorization before execution.
             </p>
           </div>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center space-x-1 p-1 bg-slate-50 rounded border border-slate-200 text-xs">
+        <div className="flex items-center gap-1 p-1 bg-slate-100/70 rounded-lg border border-slate-200/80 font-body-sm text-body-sm">
           <button
             onClick={() => setFilter('PENDING')}
-            className={`px-3 py-1 rounded font-medium transition-colors ${
-              filter === 'PENDING' ? 'bg-amber-100 text-amber-900 font-semibold shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+            className={`px-3 py-1 rounded-md font-semibold transition-colors ${
+              filter === 'PENDING'
+                ? 'bg-status-pending text-white shadow-xs'
+                : 'text-secondary hover:text-primary'
             }`}
           >
             Pending ({approvals.filter((a) => a.approval_status === 'PENDING').length})
           </button>
           <button
             onClick={() => setFilter('APPROVED')}
-            className={`px-3 py-1 rounded font-medium transition-colors ${
-              filter === 'APPROVED' ? 'bg-emerald-100 text-emerald-900 font-semibold shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+            className={`px-3 py-1 rounded-md font-semibold transition-colors ${
+              filter === 'APPROVED'
+                ? 'bg-status-recovered text-white shadow-xs'
+                : 'text-secondary hover:text-primary'
             }`}
           >
             Approved ({approvals.filter((a) => a.approval_status === 'APPROVED').length})
           </button>
           <button
             onClick={() => setFilter('ALL')}
-            className={`px-3 py-1 rounded font-medium transition-colors ${
-              filter === 'ALL' ? 'bg-slate-200 text-slate-900 font-semibold shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+            className={`px-3 py-1 rounded-md font-semibold transition-colors ${
+              filter === 'ALL'
+                ? 'bg-primary text-white shadow-xs'
+                : 'text-secondary hover:text-primary'
             }`}
           >
             All ({approvals.length})
@@ -86,11 +93,11 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
 
       {/* Approvals List */}
       {filteredApprovals.length === 0 ? (
-        <div className="p-12 text-center border border-dashed border-slate-200 rounded-xl bg-white">
-          <ShieldCheck className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-          <p className="text-xs font-semibold text-slate-800">No approval requests in this queue</p>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            When Guardrail Engine flags a high-value payment (₹10,000+), pending authorization will appear here.
+        <div className="p-12 text-center border border-dashed border-slate-200 rounded-xl bg-white card-stitch">
+          <span className="material-symbols-outlined text-slate-400 text-[40px] mb-2">verified_user</span>
+          <p className="font-headline-md text-body-md font-bold text-primary">No pending approvals in this gate</p>
+          <p className="font-body-sm text-body-sm text-secondary mt-1">
+            When Guardrail Engine flags a transaction exceeding ₹10,000, human authorization requests appear here.
           </p>
         </div>
       ) : (
@@ -106,25 +113,25 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
             return (
               <div
                 key={app.id}
-                className="p-5 rounded-xl bg-white border border-slate-200 space-y-4 flex flex-col justify-between hover:border-slate-300 transition-colors shadow-2xs"
+                className="card-stitch card-stitch-hover p-6 space-y-4 flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-mono text-xs font-bold text-slate-900">
+                    <div className="flex items-center gap-2">
+                      <span className="font-tabular-nums font-bold text-primary">
                         Approval Request #{app.id}
                       </span>
-                      <span className="font-mono text-xs text-slate-500">
+                      <span className="font-tabular-nums text-secondary text-xs">
                         (Payment #{app.payment_id})
                       </span>
                     </div>
                     <span
-                      className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${
+                      className={`px-2.5 py-0.5 rounded-full font-label-caps text-label-caps border font-bold ${
                         isPending
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          ? 'bg-status-pending/10 text-status-pending border-status-pending/20'
                           : isApproved
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200'
+                          ? 'bg-status-recovered/10 text-status-recovered border-status-recovered/20'
+                          : 'bg-status-failure/10 text-status-failure border-status-failure/20'
                       }`}
                     >
                       {app.approval_status}
@@ -132,48 +139,48 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                      Target Amount
+                    <span className="font-label-caps text-label-caps text-secondary font-bold">
+                      TARGET AMOUNT
                     </span>
-                    <div className="font-mono text-2xl font-bold text-slate-900">
+                    <div className="font-tabular-nums text-2xl font-bold text-primary">
                       ₹{amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR
                     </div>
                   </div>
 
-                  <div className="p-3 rounded bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+                  <div className="p-3.5 rounded-lg bg-slate-50/70 border border-slate-200/60 font-body-sm text-body-sm space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 text-[11px]">Requested Strategy:</span>
-                      <span className="font-mono text-slate-900 font-bold">{app.requested_strategy}</span>
+                      <span className="text-secondary">Requested Strategy:</span>
+                      <span className="font-tabular-nums font-bold text-primary">{app.requested_strategy}</span>
                     </div>
-                    <div className="text-slate-700 text-[11px] leading-tight">
-                      <span className="text-slate-500">Guardrail Rationale: </span>
-                      {app.reason || 'High-value threshold exceeded (₹10,000+)'}
+                    <div className="text-primary leading-tight">
+                      <span className="text-secondary font-medium">Guardrail Policy Rationale: </span>
+                      {app.reason || 'High-value threshold exceeded (₹10,000+ floor)'}
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200">
+                    <div className="flex items-center justify-between font-body-sm text-[11px] text-secondary pt-2 border-t border-slate-200/60">
                       <span>Expires: {new Date(app.expires_at).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="pt-3 border-t border-slate-200 flex items-center justify-end space-x-2">
+                <div className="pt-3 border-t border-slate-200/70 flex items-center justify-end gap-2">
                   {isPending && (
                     <>
                       <button
                         onClick={() => handleAction(app.id, 'reject')}
                         disabled={isLoading}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 text-xs font-semibold transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white hover:bg-status-failure/10 text-status-failure border border-status-failure/30 font-body-sm text-body-sm font-semibold transition-colors disabled:opacity-50"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <span className="material-symbols-outlined text-[16px]">close</span>
                         <span>Reject</span>
                       </button>
 
                       <button
                         onClick={() => handleAction(app.id, 'approve')}
                         disabled={isLoading}
-                        className="flex items-center space-x-1.5 px-4 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors shadow-2xs disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-status-recovered hover:bg-emerald-700 text-white font-body-sm text-body-sm font-semibold transition-colors shadow-xs disabled:opacity-50"
                       >
-                        <Check className="w-3.5 h-3.5" />
+                        <span className="material-symbols-outlined text-[16px]">check</span>
                         <span>Approve Recovery</span>
                       </button>
                     </>
@@ -183,16 +190,16 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
                     <button
                       onClick={() => handleAction(app.id, 'execute')}
                       disabled={isLoading}
-                      className="w-full flex items-center justify-center space-x-1.5 px-4 py-2 rounded bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors shadow-2xs disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-primary hover:bg-slate-800 text-white font-body-sm text-body-sm font-semibold transition-colors shadow-xs disabled:opacity-50"
                     >
-                      <Play className="w-3.5 h-3.5 fill-white" />
+                      <span className="material-symbols-outlined text-[16px]">play_arrow</span>
                       <span>{isLoading ? 'Executing Guardrail Check...' : 'Execute Recovery (Fresh Guardrail Check)'}</span>
                     </button>
                   )}
 
                   {isRejected && (
-                    <span className="text-xs text-slate-500 font-medium italic">
-                      Request rejected by compliance.
+                    <span className="font-body-sm text-body-sm text-secondary font-medium italic">
+                      Request rejected by operator/compliance.
                     </span>
                   )}
                 </div>
@@ -204,3 +211,4 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
     </div>
   );
 };
+

@@ -5,6 +5,8 @@ export type GuardrailDecision = 'ALLOW' | 'BLOCK' | 'HUMAN_APPROVAL' | 'STOP';
 export interface Payment {
   id: number;
   razorpay_payment_id: string;
+  customer_name?: string;
+  customer_email?: string;
   amount: number;
   currency: string;
   status: PaymentStatus;

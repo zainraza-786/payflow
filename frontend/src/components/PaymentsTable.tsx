@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Search, Filter, CheckCircle2 } from 'lucide-react';
 import type { Payment } from '../types';
 
 interface PaymentsTableProps {
@@ -7,6 +6,13 @@ interface PaymentsTableProps {
   onSelectPayment: (payment: Payment) => void;
   onRunWorkflow: (paymentId: number) => void;
   loadingWorkflowId?: number | null;
+  workflowFeedback?: {
+    paymentId: number;
+    type: 'success' | 'approval' | 'stopped' | 'error';
+    title: string;
+    message: string;
+  } | null;
+  onDismissWorkflowFeedback?: () => void;
 }
 
 export const PaymentsTable: React.FC<PaymentsTableProps> = ({
@@ -14,6 +20,8 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
   onSelectPayment,
   onRunWorkflow,
   loadingWorkflowId,
+  workflowFeedback,
+  onDismissWorkflowFeedback,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -31,26 +39,80 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
+      {/* Workflow Execution Feedback Banner */}
+      {workflowFeedback && (
+        <div
+          className={`p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in duration-150 ${
+            workflowFeedback.type === 'error'
+              ? 'bg-red-50/90 border-red-300 text-red-950 shadow-xs'
+              : workflowFeedback.type === 'approval'
+              ? 'bg-amber-50/90 border-amber-300 text-amber-950 shadow-xs'
+              : workflowFeedback.type === 'stopped'
+              ? 'bg-slate-100 border-slate-300 text-slate-800 shadow-xs'
+              : 'bg-emerald-50/90 border-emerald-300 text-emerald-950 shadow-xs'
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-white ${
+                workflowFeedback.type === 'error'
+                  ? 'bg-red-600'
+                  : workflowFeedback.type === 'approval'
+                  ? 'bg-amber-600'
+                  : workflowFeedback.type === 'stopped'
+                  ? 'bg-slate-600'
+                  : 'bg-emerald-600'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                {workflowFeedback.type === 'error'
+                  ? 'error'
+                  : workflowFeedback.type === 'approval'
+                  ? 'gavel'
+                  : workflowFeedback.type === 'stopped'
+                  ? 'cancel'
+                  : 'check_circle'}
+              </span>
+            </div>
+            <div>
+              <div className="font-bold text-xs">{workflowFeedback.title}</div>
+              <div className="text-[11px] opacity-90 mt-0.5">{workflowFeedback.message}</div>
+            </div>
+          </div>
+
+          {onDismissWorkflowFeedback && (
+            <button
+              onClick={onDismissWorkflowFeedback}
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white/80 hover:bg-white text-slate-800 border border-slate-200 shrink-0 transition-colors shadow-2xs"
+            >
+              Dismiss
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Search & Filter Bar */}
-      <div className="p-4 rounded-xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="card-stitch p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <span className="material-symbols-outlined text-[18px] text-slate-400 absolute left-3 top-1/2 -translate-y-1/2">
+            search
+          </span>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search Payment ID, Razorpay ID, failure cause..."
-            className="w-full pl-9 pr-3 py-1.5 rounded bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-slate-900"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-100/60 border border-slate-200/80 text-primary font-body-sm text-body-sm focus:bg-white focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 transition-all"
           />
         </div>
 
-        <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-          <Filter className="w-3.5 h-3.5 text-slate-500" />
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <span className="material-symbols-outlined text-[18px] text-secondary">filter_list</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-1.5 rounded bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-slate-900 font-medium"
+            className="px-3 py-1.5 rounded-lg bg-slate-100/60 border border-slate-200/80 text-primary font-body-sm text-body-sm focus:bg-white focus:outline-none focus:border-slate-900 font-medium"
           >
             <option value="all">All Statuses ({payments.length})</option>
             <option value="failed">Failed Only</option>
@@ -60,65 +122,80 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
       </div>
 
       {/* Main Table */}
-      <div className="rounded-xl bg-white border border-slate-200 overflow-hidden shadow-2xs">
+      <div className="card-stitch overflow-hidden">
         {filteredPayments.length === 0 ? (
-          <div className="p-12 text-center text-xs text-slate-500">
-            No payment events match the selected criteria.
+          <div className="p-12 text-center font-body-sm text-body-sm text-secondary">
+            No payment records match the selected filter criteria.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left font-body-sm text-body-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-500 text-[11px] font-semibold uppercase tracking-wider bg-slate-50">
-                  <th className="py-3 px-4">Internal ID</th>
-                  <th className="py-3 px-4">Razorpay Payment ID</th>
-                  <th className="py-3 px-4">Amount (INR)</th>
-                  <th className="py-3 px-4">Failure Reason</th>
-                  <th className="py-3 px-4">Risk Evaluation</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Workflow</th>
+                <tr className="border-b border-slate-200/70 font-label-caps text-label-caps text-secondary bg-slate-50/80">
+                  <th className="py-3.5 px-4">Customer & Account</th>
+                  <th className="py-3.5 px-4">Payment ID</th>
+                  <th className="py-3.5 px-4">Amount (INR)</th>
+                  <th className="py-3.5 px-4">Failure Diagnosis</th>
+                  <th className="py-3.5 px-4">Risk Threshold</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredPayments.map((payment) => {
                   const isHighValue = (payment.amount || 0) >= 10000;
                   const isCaptured = payment.status === 'captured';
+                  const isRunning = loadingWorkflowId === payment.id;
+                  const isAnyRunning = loadingWorkflowId !== null && loadingWorkflowId !== undefined;
 
                   return (
                     <tr
                       key={payment.id}
                       onClick={() => onSelectPayment(payment)}
-                      className="hover:bg-slate-50 cursor-pointer transition-colors"
+                      className="hover:bg-slate-50/80 cursor-pointer transition-colors"
                     >
-                      <td className="py-3.5 px-4 font-mono font-semibold text-slate-900">
-                        #{payment.id}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-xs text-slate-700 shrink-0">
+                            {(payment.customer_name || 'Customer').charAt(0)}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-primary text-xs">
+                              {payment.customer_name || 'Verified Merchant Account'}
+                            </div>
+                            <div className="text-[11px] text-secondary font-tabular-nums">
+                              {payment.customer_email || `acc_${payment.id}@payflow.demo`}
+                            </div>
+                          </div>
+                        </div>
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-slate-600">
-                        {payment.razorpay_payment_id}
+                      <td className="py-3.5 px-4">
+                        <div className="font-tabular-nums font-bold text-primary">#{payment.id}</div>
+                        <div className="font-tabular-nums text-secondary text-[11px]">{payment.razorpay_payment_id}</div>
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                      <td className="py-3.5 px-4 font-tabular-nums font-bold text-primary">
                         ₹{(payment.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-600 max-w-[200px] truncate">
+                      <td className="py-3.5 px-4 text-secondary max-w-[220px] truncate">
                         {payment.failure_reason || 'Unknown failure'}
                       </td>
                       <td className="py-3.5 px-4">
                         {isHighValue ? (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                            HIGH VALUE (REQUIRES APPROVAL)
+                          <span className="px-2.5 py-0.5 rounded-full font-label-caps text-label-caps bg-status-pending/10 text-status-pending border border-status-pending/20 font-bold">
+                            HIGH VALUE (APPROVAL REQ)
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                          <span className="px-2.5 py-0.5 rounded-full font-label-caps text-label-caps bg-slate-100 text-slate-600 border border-slate-200 font-bold">
                             STANDARD RECOVERY
                           </span>
                         )}
                       </td>
                       <td className="py-3.5 px-4">
                         <span
-                          className={`px-2.5 py-1 rounded text-[10px] font-bold border ${
+                          className={`px-2.5 py-0.5 rounded-full font-label-caps text-label-caps border font-bold ${
                             isCaptured
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-rose-50 text-rose-700 border-rose-200'
+                              ? 'bg-status-recovered/10 text-status-recovered border-status-recovered/20'
+                              : 'bg-status-failure/10 text-status-failure border-status-failure/20'
                           }`}
                         >
                           {payment.status.toUpperCase()}
@@ -126,17 +203,20 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
                       </td>
                       <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         {isCaptured ? (
-                          <span className="text-[11px] font-semibold text-emerald-700 flex items-center justify-end gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="font-body-sm text-[11px] font-semibold text-status-recovered flex items-center justify-end gap-1">
+                            <span className="material-symbols-outlined text-[16px]">check_circle</span>
                             Recovered
                           </span>
                         ) : (
                           <button
                             onClick={() => onRunWorkflow(payment.id)}
-                            disabled={loadingWorkflowId === payment.id}
-                            className="px-3 py-1 rounded bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-semibold transition-colors disabled:opacity-50 shadow-2xs"
+                            disabled={isAnyRunning}
+                            className="btn-stitch flex items-center gap-1.5 ml-auto px-3.5 py-1.5 rounded-lg bg-primary hover:bg-slate-800 text-white font-body-sm text-[11px] font-semibold shadow-xs disabled:opacity-50"
                           >
-                            {loadingWorkflowId === payment.id ? 'Running...' : 'Run Workflow'}
+                            {isRunning && (
+                              <span className="material-symbols-outlined text-[14px] animate-spin">refresh</span>
+                            )}
+                            <span>{isRunning ? 'Running...' : 'Run Workflow'}</span>
                           </button>
                         )}
                       </td>
@@ -151,3 +231,4 @@ export const PaymentsTable: React.FC<PaymentsTableProps> = ({
     </div>
   );
 };
+

@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     razorpay_key_id: str | None = None
     razorpay_key_secret: str | None = None
-    razorpay_webhook_secret: str | None = None
+    razorpay_webhook_secret: str | None = "test_webhook_secret"
     cors_origins: str = "*"
 
     high_value_threshold_inr: Decimal = Decimal("10000.00")

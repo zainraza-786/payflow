@@ -153,7 +153,7 @@ export const OriginalVasuliLandingPage: React.FC<OriginalVasuliLandingPageProps>
             </motion.div>
 
             <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight md:text-5xl">
-              <SplitText text="Vasuli — the AI agent that" />
+              <SplitText text="Payflow — the AI agent that" />
               <br />
               <SplitText
                 text="gets your money back."
